@@ -4,6 +4,35 @@
   
     
     <entry>
+      <title>DedecmsV5.7 SP2 任意用户登录</title>
+      <link href="2021/07/02/DedecmsV5-7-SP2-%E4%BB%BB%E6%84%8F%E7%94%A8%E6%88%B7%E7%99%BB%E5%BD%95/"/>
+      <url>2021/07/02/DedecmsV5-7-SP2-%E4%BB%BB%E6%84%8F%E7%94%A8%E6%88%B7%E7%99%BB%E5%BD%95/</url>
+      
+        <content type="html"><![CDATA[<h2 id="漏洞描述"><a href="#漏洞描述" class="headerlink" title="漏洞描述"></a>漏洞描述</h2><p>织梦内容管理系统(Dedecms)是一款PHP开源网站管理系统。dedecms 的会员模块的身份认证使用的是客户端 session，在 Cookie 中写入用户 ID 并且附上 ID__ckMd5，用做签名。主页存在逻辑漏洞，导致可以返回指定 uid 的 ID 的 Md5 散列值。原理上可以伪造任意用户登录。</p><h2 id="漏洞影响"><a href="#漏洞影响" class="headerlink" title="漏洞影响"></a>漏洞影响</h2><p>DedeCMS V5.7 SP2</p><h2 id="漏洞复现"><a href="#漏洞复现" class="headerlink" title="漏洞复现"></a>漏洞复现</h2><p>首先需要有一个用户，注册一个即可，然后需要管理员审核通过，不然不能发表文章，变成正常用户后可以发表文章</p>]]></content>
+      
+      
+      <categories>
+          
+          <category> 漏洞复现 </category>
+          
+      </categories>
+      
+      
+        <tags>
+            
+            <tag> php </tag>
+            
+            <tag> dedecms </tag>
+            
+            <tag> 任意用户登录 </tag>
+            
+        </tags>
+      
+    </entry>
+    
+    
+    
+    <entry>
       <title>DedecmsV5.7 SP2 前台文件上传漏洞（CVE-2018-20129）</title>
       <link href="2021/07/02/DedecmsV5-7-SP2-%E5%89%8D%E5%8F%B0%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2018-20129%EF%BC%89/"/>
       <url>2021/07/02/DedecmsV5-7-SP2-%E5%89%8D%E5%8F%B0%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E6%BC%8F%E6%B4%9E%EF%BC%88CVE-2018-20129%EF%BC%89/</url>
