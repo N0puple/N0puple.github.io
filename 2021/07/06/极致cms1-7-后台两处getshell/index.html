@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="keywords" content="" />
+  <meta name="author" content="John Doe" />
+  <meta name="description" content="" />
+  
+  
+  <title>
+    
+      极致cms1.7 后台两处getshell 
+      
+      
+      |
+    
+     N0puple&#39;s Blog
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/images/001.ico">
+    <link rel="icon" href="/images/001.ico">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+
+  <!-- hexo site css -->
+  
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/iconfont/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+
+  <!-- jquery3.3.1 -->
+  <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+
+  <!-- fancybox -->
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <script async src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js"></script>
+  
+<script src="/js/fancybox.js"></script>
+
+
+  
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <div class="avatar">
+    <a href="/">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img src="/images/1.jpg" alt="">
+      
+    </a>
+    <div class="nickname"><a href="/">N0puple</a></div>
+  </div>
+  <div class="navbar">
+    <ul>
+      
+        <li class="nav-item" data-path="/">
+          <a href="/">主页</a>
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          <a href="/archives/">归档</a>
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          <a href="/categories/">分类</a>
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          <a href="/tags/">标签</a>
+        </li>
+      
+        <li class="nav-item" data-path="/friends/">
+          <a href="/friends/">朋友</a>
+        </li>
+      
+        <li class="nav-item" data-path="/about/">
+          <a href="/about/">关于我</a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+<script src="/js/activeNav.js"></script>
+
+
+
+      <div class="flex-container">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+<!-- LaTex Display -->
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+</script>
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']]
+  }
+};
+</script>
+
+
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">极致cms1.7 后台两处getshell</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime" title="Update time"></i>
+          2021-07-06 21:27:41
+        </span>
+        
+              <span class="post-categories">
+                <i class="iconfont icon-bookmark" title="Categories"></i>
+                
+                <span class="span--category">
+                  <a href="/categories/%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/" title="漏洞复现">
+                    <b>#</b> 漏洞复现
+                  </a>
+                </span>
+                
+              </span>
+          
+              <span class="post-tags">
+                <i class="iconfont icon-tags" title="Tags"></i>
+                
+                <span class="span--tag">
+                  <a href="/tags/php/" title="php">
+                    <b>#</b> php
+                  </a>
+                </span>
+                
+                <span class="span--tag">
+                  <a href="/tags/getshell/" title="getshell">
+                    <b>#</b> getshell
+                  </a>
+                </span>
+                
+                <span class="span--tag">
+                  <a href="/tags/%E6%9E%81%E8%87%B4cms/" title="极致cms">
+                    <b>#</b> 极致cms
+                  </a>
+                </span>
+                
+              </span>
+          
+      </div>
+      <div class="markdown-body">
+        <h2 id="漏洞描述"><a href="#漏洞描述" class="headerlink" title="漏洞描述"></a>漏洞描述</h2><p>有了 <code>SQL</code> 注入之后，大几率能进入后台，接下来关注两处后台 <code>getshell</code>。</p>
+<h2 id="漏洞细节"><a href="#漏洞细节" class="headerlink" title="漏洞细节"></a>漏洞细节</h2><h3 id="上传后缀限制绕过getshell"><a href="#上传后缀限制绕过getshell" class="headerlink" title="上传后缀限制绕过getshell"></a>上传后缀限制绕过getshell</h3><p>极致提供了上传后缀白名单，在后台可以进行更改</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">系统设置 -&gt; 基本设置 -&gt; 高级设置</span><br></pre></td></tr></table></figure>
+
+<p>更改允许上传文件类型，添加一个 <code>php</code> 就行，这里没有任何限制，然后找一处上传</p>
+<h4 id="后台上传"><a href="#后台上传" class="headerlink" title="后台上传"></a>后台上传</h4><p>后台上传还是有很多的，就比如这处</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">商品管理 -&gt; 商品列表 -&gt; 首图 上传</span><br></pre></td></tr></table></figure>
+
+<p>上传个图片，抓包，更改图片内容，修改图片后缀为 <code>php</code> ，发包得到 <code>shell</code> 地址</p>
+<p><img src="https://gitee.com/N0puple/nopic/raw/master/img/20210706235954.png"></p>
+<p>访问 <code>shell</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">http:&#x2F;&#x2F;www.jizhi17.com&#x2F;Public&#x2F;Admin&#x2F;202107074201.php</span><br></pre></td></tr></table></figure>
+
+<p>可以看到 <code>A/c/CommonController.php</code> 的 <code>uploads</code> 方法</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">uploads</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="variable">$_FILES</span>[<span class="string">&quot;file&quot;</span>][<span class="string">&quot;error&quot;</span>] &gt; <span class="number">0</span>)&#123;</span><br><span class="line">      ...</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">      <span class="variable">$pix</span> = explode(<span class="string">&#x27;.&#x27;</span>,<span class="variable">$_FILES</span>[<span class="string">&#x27;file&#x27;</span>][<span class="string">&#x27;name&#x27;</span>]);</span><br><span class="line">      <span class="variable">$pix</span> = end(<span class="variable">$pix</span>);</span><br><span class="line">        <span class="variable">$fileType</span> = <span class="keyword">$this</span>-&gt;webconf[<span class="string">&#x27;fileType&#x27;</span>];</span><br><span class="line">        <span class="keyword">if</span>(strpos(<span class="variable">$fileType</span>,strtolower(<span class="variable">$pix</span>))===<span class="literal">false</span>)&#123;</span><br><span class="line">            <span class="variable">$data</span>[<span class="string">&#x27;error&#x27;</span>] =  <span class="string">&quot;Error: 文件类型不允许上传！&quot;</span>;</span><br><span class="line">            <span class="variable">$data</span>[<span class="string">&#x27;code&#x27;</span>] = <span class="number">1002</span>;</span><br><span class="line">            JsonReturn(<span class="variable">$data</span>);</span><br><span class="line">        &#125;</span><br><span class="line">        ...</span><br></pre></td></tr></table></figure>
+
+<p>这里首先会获取文件后缀，对比白名单是否存在，不存在就退出</p>
+<h4 id="前台上传"><a href="#前台上传" class="headerlink" title="前台上传"></a>前台上传</h4><p>前台先注册个账号，然后登录</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">我的投稿 -&gt; 发布内容</span><br></pre></td></tr></table></figure>
+
+<p>也是一样的操作，代码都一模一样，几乎没有任何区别</p>
+<h3 id="插件-getshell"><a href="#插件-getshell" class="headerlink" title="插件 getshell"></a>插件 getshell</h3><h3 id="安装模板编辑插件"><a href="#安装模板编辑插件" class="headerlink" title="安装模板编辑插件"></a>安装模板编辑插件</h3><p>我们可以通过安装插件来 <code>getshell</code> ，我们可以安装在线编辑模板插件，安装后，首次使用需要输入密码，然后再次输入密码就能进入编辑页面，很轻松就可以 <code>getshell</code></p>
+<p><img src="https://gitee.com/N0puple/nopic/raw/master/img/20210707211744.png"></p>
+<h3 id="伪造恶意插件"><a href="#伪造恶意插件" class="headerlink" title="伪造恶意插件"></a>伪造恶意插件</h3><p>这里我们可以分析一下插件下载安装的过程</p>
+<p>提供了一批可以下载的插件，我们随意来一个并抓包，我们来看看这个包</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">POST</span> <span class="string">/admin.php/Plugins/update.html</span> <span class="meta">HTTP/1.1</span></span><br><span class="line"><span class="attribute">Host</span><span class="punctuation">: </span>www.jizhi17.com</span><br><span class="line"><span class="attribute">User-Agent</span><span class="punctuation">: </span>Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:72.0) Gecko/20100101 Firefox/72.0</span><br><span class="line"><span class="attribute">Accept</span><span class="punctuation">: </span>application/json, text/javascript, */*; q=0.01</span><br><span class="line"><span class="attribute">Accept-Language</span><span class="punctuation">: </span>zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2</span><br><span class="line"><span class="attribute">Accept-Encoding</span><span class="punctuation">: </span>gzip, deflate</span><br><span class="line"><span class="attribute">Content-Type</span><span class="punctuation">: </span>application/x-www-form-urlencoded; charset=UTF-8</span><br><span class="line"><span class="attribute">X-Requested-With</span><span class="punctuation">: </span>XMLHttpRequest</span><br><span class="line"><span class="attribute">Content-Length</span><span class="punctuation">: </span>108</span><br><span class="line"><span class="attribute">Origin</span><span class="punctuation">: </span>http://www.jizhi17.com</span><br><span class="line"><span class="attribute">Connection</span><span class="punctuation">: </span>close</span><br><span class="line"><span class="attribute">Referer</span><span class="punctuation">: </span>http://www.jizhi17.com/admin.php/Plugins/index.html</span><br><span class="line"><span class="attribute">Cookie</span><span class="punctuation">: </span>XDEBUG_SESSION=PHPSTORM; PHPSESSID=39m6og11d2l02ip1f3kfk13pk4</span><br><span class="line"></span><br><span class="line">action=start-download&amp;filepath=jzdesign&amp;download_url=http%3A%2F%2Fdown.jizhicms.cn%2Fjzdesign1.1.zip%3Fv%3D2</span><br></pre></td></tr></table></figure>
+
+<p>我们看到，有一个参数是 <code>download_url</code>，后面就对应的是下载链接，我们看看代码，<code>A/c/PluginsController.php</code> 的 <code>update</code> 方法，657 行</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">update</span>(<span class="params"></span>)</span>&#123;</span><br><span class="line">    <span class="variable">$filepath</span> = <span class="keyword">$this</span>-&gt;frparam(<span class="string">&#x27;filepath&#x27;</span>,<span class="number">1</span>);</span><br><span class="line">    <span class="keyword">if</span>(<span class="variable">$filepath</span>)&#123;</span><br><span class="line">        <span class="keyword">if</span>(<span class="keyword">$this</span>-&gt;frparam(<span class="string">&#x27;action&#x27;</span>,<span class="number">1</span>))&#123;</span><br><span class="line">            <span class="variable">$action</span> = <span class="keyword">$this</span>-&gt;frparam(<span class="string">&#x27;action&#x27;</span>,<span class="number">1</span>);</span><br><span class="line">            <span class="comment">// 自己获取这些信息</span></span><br><span class="line">            <span class="variable">$remote_url</span>  = urldecode(<span class="keyword">$this</span>-&gt;frparam(<span class="string">&#x27;download_url&#x27;</span>,<span class="number">1</span>));</span><br><span class="line">            <span class="variable">$file_size</span>   = <span class="keyword">$this</span>-&gt;frparam(<span class="string">&#x27;filesize&#x27;</span>,<span class="number">1</span>);</span><br><span class="line">            <span class="variable">$tmp_path</span>    = Cache_Path.<span class="string">&quot;/update_&quot;</span>.<span class="variable">$filepath</span>.<span class="string">&quot;.zip&quot;</span>;<span class="comment">//临时下载文件路径</span></span><br><span class="line">            <span class="keyword">switch</span> (<span class="variable">$action</span>) &#123;</span><br><span class="line">                <span class="keyword">case</span> <span class="string">&#x27;prepare-download&#x27;</span>:</span><br><span class="line">                    <span class="variable">$code</span> = <span class="number">0</span>;</span><br><span class="line">                    ob_start(); </span><br><span class="line">                    <span class="variable">$ch</span>=curl_init(<span class="variable">$remote_url</span>); </span><br><span class="line">                    curl_setopt(<span class="variable">$ch</span>,CURLOPT_HEADER,<span class="number">1</span>); </span><br><span class="line">                    curl_setopt(<span class="variable">$ch</span>,CURLOPT_NOBODY,<span class="number">1</span>); </span><br><span class="line">                    <span class="variable">$okay</span>=curl_exec(<span class="variable">$ch</span>); </span><br><span class="line">                    curl_close(<span class="variable">$ch</span>); </span><br><span class="line">                    <span class="variable">$head</span>=ob_get_contents(); </span><br><span class="line">                    ob_end_clean(); </span><br><span class="line">                    <span class="variable">$regex</span>=<span class="string">&#x27;/Content-Length:\s([0-9].+?)\s/&#x27;</span>; </span><br><span class="line">                    <span class="variable">$count</span>=preg_match(<span class="variable">$regex</span>,<span class="variable">$head</span>,<span class="variable">$matches</span>); </span><br><span class="line">                    <span class="variable">$filesize</span> = <span class="keyword">isset</span>(<span class="variable">$matches</span>[<span class="number">1</span>])&amp;&amp;is_numeric(<span class="variable">$matches</span>[<span class="number">1</span>])?<span class="variable">$matches</span>[<span class="number">1</span>]:<span class="number">0</span>; </span><br><span class="line"></span><br><span class="line">                    JsonReturn(<span class="keyword">array</span>(<span class="string">&#x27;code&#x27;</span>=&gt;<span class="number">0</span>,<span class="string">&#x27;size&#x27;</span>=&gt;<span class="variable">$filesize</span>));</span><br><span class="line">                    <span class="keyword">break</span>;</span><br><span class="line">                <span class="keyword">case</span> <span class="string">&#x27;start-download&#x27;</span>:</span><br><span class="line">                    <span class="comment">// 这里检测下 tmp_path 是否存在</span></span><br><span class="line">                    <span class="keyword">try</span> &#123;</span><br><span class="line">                        set_time_limit(<span class="number">0</span>);</span><br><span class="line">                        touch(<span class="variable">$tmp_path</span>);</span><br><span class="line">                        <span class="comment">// 做些日志处理</span></span><br><span class="line">                        <span class="keyword">if</span> (<span class="variable">$fp</span> = fopen(<span class="variable">$remote_url</span>, <span class="string">&quot;rb&quot;</span>)) &#123;</span><br><span class="line">                            <span class="keyword">if</span> (!<span class="variable">$download_fp</span> = fopen(<span class="variable">$tmp_path</span>, <span class="string">&quot;wb&quot;</span>)) &#123;</span><br><span class="line">                                <span class="keyword">exit</span>;</span><br><span class="line">                            &#125;</span><br><span class="line">                            <span class="keyword">while</span> (!feof(<span class="variable">$fp</span>)) &#123;</span><br><span class="line">                                <span class="keyword">if</span> (!file_exists(<span class="variable">$tmp_path</span>)) &#123;</span><br><span class="line">                                    <span class="comment">// 如果临时文件被删除就取消下载</span></span><br><span class="line">                                    fclose(<span class="variable">$download_fp</span>);</span><br><span class="line">                                    <span class="keyword">exit</span>;</span><br><span class="line">                                &#125;</span><br><span class="line">                                fwrite(<span class="variable">$download_fp</span>, fread(<span class="variable">$fp</span>, <span class="number">1024</span> * <span class="number">8</span> ), <span class="number">1024</span> * <span class="number">8</span>);</span><br><span class="line">                            &#125;</span><br><span class="line">                            fclose(<span class="variable">$download_fp</span>);</span><br><span class="line">                            fclose(<span class="variable">$fp</span>);</span><br><span class="line">                        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">                            <span class="keyword">exit</span>;</span><br><span class="line">                        &#125;</span><br></pre></td></tr></table></figure>
+
+<p>我们可以看到 <code>$remote_url</code> 是我们完全可控的，也就是说，我们想下哪里，就可以下哪里，我们就可以下载一个我们的恶意压缩包，然后顺着之后的操作解压等等就可以 <code>getshell</code></p>
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>这里都是利用后台的一些正规操作来 <code>getshell</code>，并不太涉及到代码方面，因此代码分析比较少，主要还是提供几种常见的后台 <code>getshell</code> 操作，插件 <code>getshell</code> ，添加白名单 <code>getshell</code> 都是后台 <code>getshell</code> 比较常规的操作。</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/rfrder/article/details/115427747">https://blog.csdn.net/rfrder/article/details/115427747</a></li>
+</ul>
+
+      </div>
+      
+        <div class="prev-or-next">
+          <div class="post-foot-next">
+            
+              <a href="/2021/07/04/%E6%9E%81%E8%87%B4cms1-7-%E5%89%8D%E5%8F%B0SQL%E6%B3%A8%E5%85%A5%EF%BC%88CNVD-2021-26000%EF%BC%89/" target="_self">
+                <i class="iconfont icon-chevronleft"></i>
+                <span>Prev</span>
+              </a>
+            
+          </div>
+          <div class="post-attach">
+            <span class="post-pubtime">
+              <i class="iconfont icon-updatetime" title="Update time"></i>
+              2021-07-06 21:27:41
+            </span>
+            
+                  <span class="post-categories">
+                    <i class="iconfont icon-bookmark" title="Categories"></i>
+                    
+                    <span class="span--category">
+                      <a href="/categories/%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/" title="漏洞复现">
+                        <b>#</b> 漏洞复现
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+                  <span class="post-tags">
+                    <i class="iconfont icon-tags" title="Tags"></i>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/php/" title="php">
+                        <b>#</b> php
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/getshell/" title="getshell">
+                        <b>#</b> getshell
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/%E6%9E%81%E8%87%B4cms/" title="极致cms">
+                        <b>#</b> 极致cms
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+          </div>
+          <div class="post-foot-prev">
+            
+              <a href="/2021/07/07/%E6%9E%81%E8%87%B4cms1-7-%E5%89%8D%E5%8F%B0SQL%E6%B3%A8%E5%85%A52/" target="_self">
+                <span>Next</span>
+                <i class="iconfont icon-chevronright"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+    </div>
+    
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">Contents</div>
+    <div class="catalog-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E6%8F%8F%E8%BF%B0"><span class="toc-text">漏洞描述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E7%BB%86%E8%8A%82"><span class="toc-text">漏洞细节</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%B8%8A%E4%BC%A0%E5%90%8E%E7%BC%80%E9%99%90%E5%88%B6%E7%BB%95%E8%BF%87getshell"><span class="toc-text">上传后缀限制绕过getshell</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%90%8E%E5%8F%B0%E4%B8%8A%E4%BC%A0"><span class="toc-text">后台上传</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%89%8D%E5%8F%B0%E4%B8%8A%E4%BC%A0"><span class="toc-text">前台上传</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%8F%92%E4%BB%B6-getshell"><span class="toc-text">插件 getshell</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%AE%89%E8%A3%85%E6%A8%A1%E6%9D%BF%E7%BC%96%E8%BE%91%E6%8F%92%E4%BB%B6"><span class="toc-text">安装模板编辑插件</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E4%BC%AA%E9%80%A0%E6%81%B6%E6%84%8F%E6%8F%92%E4%BB%B6"><span class="toc-text">伪造恶意插件</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83"><span class="toc-text">参考</span></a></li></ol>
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+      <div class="comments-container">
+        
+
+
+  <script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+
+  <div id="vcomments"></div>
+
+  <script>
+    new Valine({
+      el: '#vcomments',
+      appId: 'NDNgppjVEEzr7sUejJFVueds-gzGzoHsz',
+      appKey: 'E6rBuy0l5xXiIjq6GA24XI5J',
+      placeholder: 'Welcome!',
+      avatar: 'retro',
+      lang: 'en'
+    })
+  </script>
+
+    <style>
+      .comments-container .v .vempty {
+        display: none!important;
+      }
+    </style>
+
+
+
+
+      </div>
+    
+  </div>
+
+
+        <div class="footer">
+  <div class="social">
+    <ul>
+      
+        <li>
+          <a title="github" target="_blank" rel="noopener" href="https://github.com/N0puple/">
+            <i class="iconfont icon-github"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+  
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/N0puple/">Copyright © N0puple 2020</a>
+        
+    </div>
+  
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
+        
+    </div>
+  
+</div>
+
+      </div>
+
+      <div class="back-to-top hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+      
+  <div class="search-icon" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
+  </div>
+
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="搜索...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
+      </div>
+      <div class="search-result" id="search-result"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
+
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
+
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
+    }
+
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        // inputArea.focus()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
+
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
+
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>First search, index file loading, please wait...<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
+
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
+
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
+                }
+                str += "</li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>No result<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The search.xml file was not found, please refer to：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The request failed, Try to refresh the page or try again later.<span></ul>";
+          }
+        }
+      });
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
+      });
+    }
+
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
+
+
+
+
+    </div>
+  </body>
+</html>

